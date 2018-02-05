@@ -1,0 +1,138 @@
+<%@ include file="taglibs.jsp" %>
+
+<html:html locale="true">
+  <head>   
+    <html:base/>
+  </head>
+  <body bgcolor="white"><p>    
+
+   <html:errors/><p> 
+
+   
+    <%! HttpSession session = null; 
+        hello.TermMatchBean _tmb = null;
+        hello.PersonBean _pb2 = null;
+        String _hs = null;
+        String _hs_tf = null;
+        String _mhs = null;
+        String _hs_fb = null;
+        String _hs_fdb = null;
+        String _hs_tm = null;
+        int remainSeconds = 300;
+
+        String userName  = null;
+        String strCorrectContentSet = null; 
+        java.sql.Connection myConnection = null;
+        PreparedStatement stmt = null;
+        PreparedStatement stmt2 = null;
+        Statement s = null;
+        ResultSet rs = null;
+        ResultSet rs2 = null;
+        HashSet usedSet = null;
+        HashSet totalSet = null;
+        int intTemp = 0;
+        Iterator iter = null;
+        int intRandom = 0;
+        HashSet currentSet = null;
+        int index = 0;
+        int i = 0;
+        int id = 0; String strTerm1 = null; String strTerm2 = null;
+        String strType = null; String strSource = null;
+        int[] intUsed = null;
+        String answerRightOrWrong = null;
+    %>
+    <% session = request.getSession(true);     
+       /*
+       _fdbb = (hello.FillDoubleBlankBean)request.getAttribute(hello.Constants.FILLDOUBLEBLANK_KEY);
+       _pb2 = (hello.PersonBean)request.getAttribute(hello.Constants.PERSON_KEY);
+       _hs = (String)request.getAttribute(hello.Constants.HASHSET_KEY);
+       _hs_tf = (String)request.getAttribute(hello.Constants.HASHSET_TF_KEY);
+       _mhs = (String)request.getAttribute(hello.Constants.HASHSET_M_KEY);
+       _hs_fb = (String)request.getAttribute(hello.Constants.HASHSET_FB_KEY);
+       _hs_fdb = (String)request.getAttribute(hello.Constants.HASHSET_FDB_KEY);
+       _hs_tm = (String)request.getAttribute(hello.Constants.HASHSET_TM_KEY);
+       */
+       userName = (String)request.getParameter("userName");
+       System.out.println("inside TermMatch_Check.jsp, userName = " + userName);
+
+    %>
+
+
+     <% remainSeconds = _pb2.getRemainSeconds();
+       if (remainSeconds > 0 && _pb2.getPlanStatus().equals("not finished")){ 
+    %>
+
+      <FORM ACTION="dragTermTable3.xhtml" METHOD="GET">
+         <TABLE BORDER=0>    
+        <TR>
+           <TD><INPUT TYPE="Hidden" name="answeredHashSet" value="<%= _hs%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="answeredHashSet_tf" value="<%= _hs_tf%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="answered_M_HashSet" value="<%= _mhs%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="answeredHashSet_fb" value="<%= _hs_fb%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="answeredHashSet_fdb" value="<%= _hs_fdb%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="answeredHashSet_tm" value="<%= _hs_tm%>"></TD>
+   <TD><INPUT TYPE="Hidden" name="answeredProblems" value="<%= (new Integer(_pb2.getAnsweredProblems()).toString())%>"></TD>
+   <TD><INPUT TYPE="Hidden" name="correctAnswers" value="<%= (new Integer(_pb2.getCorrectAnswers()).toString())%>"></TD>
+   <TD><INPUT TYPE="Hidden" name="totalScore" value="<%= (new Double(_pb2.getTotalScore()).toString())%>"></TD>
+ <TD><INPUT TYPE="Hidden" name="correctAnswers_low" value="<%= (new Integer(_pb2.getCorrectAnswers_low()).toString())"></TD>
+ <INPUT TYPE="Hidden" name="answeredProblems_low" value="<%= (new Integer(_pb2.getAnsweredProblems_low()).toString()) %>">
+ <INPUT TYPE="Hidden" name="correctAnswers_middle" value="<%= (new Integer(_pb2.getCorrectAnswers_middle()).toString())%>">
+<INPUT TYPE="Hidden" name="answeredProblems_middle" value="<%= (new Integer(_pb2.getAnsweredProblems_middle()).toString())%>">
+ <INPUT TYPE="Hidden" name="correctAnswers_high" value="<%= (new Integer(_pb2.getCorrectAnswers_high()).toString())%>">
+ <INPUT TYPE="Hidden" name="answeredProblems_high" value="<%= (new Integer(_pb2.getAnsweredProblems_high()).toString())%>">
+           <TD><INPUT TYPE="Hidden" name="userName" value="<%= userName%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="passWord" value="<%= _pb2.getPassWord()%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="trueName" value="<%= _pb2.getTrueName()%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="lastType" value="<%= _pb2.getLastType()%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="thisType" value="<%= _pb2.getThisType()%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="times" value="<%= _pb2.getTimes()%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="randomNumber" value="<%= _pb2.getRandomNumber()%>"></TD>
+           <TD><INPUT TYPE="Hidden" name="id" value="<%= new Integer(_pb2.getCurrentProblemId()).toString() %>"></TD>
+           <TD><INPUT TYPE="Hidden" name="planStatus" value="<%= _pb2.getPlanStatus()%>"></TD>
+        </TR>
+        <TR>      
+           <TD align=center><INPUT TYPE="Submit" VALUE="Submit to Visit dragTermTable3.xhtml">&nbsp;&nbsp;
+                       <INPUT TYPE="Reset" VALUE="Reset"></TD>
+       </TR>
+         </TABLE>
+      </FORM>
+      <br>
+
+    <% } else { %>
+
+      <center><h2>Either your time is used up or you have answered all the problems. Please click the following submit button to exit.</h2></center>
+        <center>
+      <html:form action="/SmartQuit.do" >     
+      <html:hidden property="answeredHashSet" value="<%= _hs%>"/>
+      <html:hidden property="answeredHashSet_tf" value="<%= _hs_tf%>"/>
+      <html:hidden property="answered_M_HashSet" value="<%= _mhs%>"/>
+      <html:hidden property="answeredHashSet_fb" value="<%= _hs_fb%>"/>
+      <html:hidden property="answeredHashSet_fdb" value="<%= _hs_fdb%>"/>
+      <html:hidden property="userName" value="<%= _pb2.getUserName()%>"/>
+      <html:hidden property="passWord" value="<%= _pb2.getPassWord()%>"/>
+      <html:hidden property="trueName" value="<%= _pb2.getTrueName()%>"/>
+      <html:hidden property="answeredProblems" value="<%= (new Integer(_pb2.getAnsweredProblems()).toString())%>"/><br>
+      <html:hidden property="correctAnswers" value="<%= (new Integer(_pb2.getCorrectAnswers()).toString())%>"/>
+      <html:hidden property="totalScore" value="<%= (new Double(_pb2.getTotalScore()).toString())%>"/>
+      <html:hidden property="correctAnswers_low" value="<%= (new Integer(_pb2.getCorrectAnswers_low()).toString())%>"/>
+      <html:hidden property="answeredProblems_low" value="<%= (new Integer(_pb2.getAnsweredProblems_low()).toString())%>"/>
+ <html:hidden property="correctAnswers_middle" value="<%= (new Integer(_pb2.getCorrectAnswers_middle()).toString())%>"/>
+ <html:hidden property="answeredProblems_middle" value="<%= (new Integer(_pb2.getAnsweredProblems_middle()).toString())%>"/>
+     <html:hidden property="correctAnswers_high" value="<%= (new Integer(_pb2.getCorrectAnswers_high()).toString())%>"/>
+     <html:hidden property="answeredProblems_high" value="<%= (new Integer(_pb2.getAnsweredProblems_high()).toString())%>"/>
+      <html:hidden property="times" value="<%= _pb2.getTimes()%>"/>
+      <html:hidden property="planStatus" value="<%= _pb2.getPlanStatus()%>"/>
+  
+      <html:submit property="submit" value="Submit"/>
+      <html:reset/>
+
+    </html:form><br>
+    </center>
+
+     
+    <% } %>
+
+    <html:img page="/struts-power.gif" alt="Powered by Struts"/>
+   
+  </body>
+</html:html>

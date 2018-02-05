@@ -1,0 +1,24 @@
+<html>
+<head>Computer Basis Course Random Quiz Front Page</head>
+
+<body bgcolor="white">
+<CENTER><H2>In this random quiz, you will be tested based on the knowledge you have learned in class. The rules are following:</H2></CENTER><P>
+
+<CENTER><H2>
+1. You will have 3 minutes to take this quiz.<P>
+2. The quiz will be a randomly selected one, which means that the computer will randomly choose the problems on the quiz for each student, therefore different students might have different questions in the quiz.<P>
+3. There will be two types of random quizes for you to choose: normal random quiz and intelligent random quiz.<P>
+4. If you choose normal random quiz, then each problem will worth 1 point equally. There will be two types of problems: true/false statement and single choice problem.<br> 
+For the true/false statement, you will need to make your judgement about the statement. If you think the statement is true, you enter the single letter "T" as the answer;otherwise, the single letter "F" will be the answer.<br>
+For the single choice problem, there will be four choices for you to choose, one and only one is correct. Please enter the letter (A,B,C or D) representing that choice as the correct answer.<P>
+5. If you choose intelligent random quiz, you will encounter three levels of problems:low level(represented by "L"), middle level(represented by "M") and high level(represented by "H").<br>
+Each of the low level problem is worth 1 point equally. And there are two question types:true/false statement and single choice problem, as explained above.<br>
+Each of the middle level problem is worth 1.5 point equally. However, if you miss one middle level problem, your points will be reduced by 0.5. And there are one question type: fill blank, which will require you to enter a word to fill the blank in the paratheses of the statement.<br>
+Each of the high level problem is worth 2 points equally. However, if you miss one high level problem, you will suffer 1 point loss. And there are two question types: multiple choices and fill double blanks.<br>
+In multiple choices, you will need to choose all correct choices. If you do not choose enough items or choose more items than enough, that will be counted as a wrong answer. To make a correct answer, you must choose exactly all correct items.<br>
+In fill double blanks, there will be two blanks in the statement. For each blank, you need to enter a single word. The these two single words should be connected by a semi-colon(";") without any other space in between. If either of these two words is wrong, or these two words are entered in a different order from the blanks order in the statement, the answer will be counted as wrong.<P>
+ 
+</H2></CENTER><P>
+
+</body>
+</html>

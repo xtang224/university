@@ -1,0 +1,32 @@
+<%@ include file="taglibs.jsp" %>
+<%@page pageEncoding="GB18030"%>
+
+<html:html locale="true">
+  <head>
+    <title><bean:message key="hello.jsp.title"/></title>
+    <html:base/>
+  </head>
+  <body bgcolor="white"><p>
+
+    <h2><bean:message key="hello.jsp.page.heading"/></h2><p>
+
+   <html:errors/><p>   
+
+   <h2><center>Your Student Id is your Id assigned by School, which is 13 digits long. If your student Id is already in the database, then your first time login password is the last 4 digits of your student Id. After login, you can change your password.</center></h2>  
+
+    <html:form action="/Login.do" >
+
+      <bean:message key="hello.jsp.prompt.username"/><html:text property="userName" size="16" maxlength="16"/>
+      <br>
+      <bean:message key="hello.jsp.prompt.password"/><html:password property="passWord" size="16" maxlength="16"/>
+      <br>
+
+      <html:submit property="submit" value="Submit"/>
+      <html:reset/>
+
+    </html:form><br>
+
+    <html:img page="/struts-power.gif" alt="Powered by Struts"/>
+
+  </body>
+</html:html>

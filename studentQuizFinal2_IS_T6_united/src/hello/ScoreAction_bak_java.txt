@@ -1,0 +1,158 @@
+package hello;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
+
+import java.util.*;
+import java.sql.*;
+import java.io.*;
+import javax.sql.*;
+
+import util.*;
+
+public final class ScoreAction extends Action {
+
+    /**
+     * Process the specified HTTP request, and create the corresponding HTTP
+     * response (or forward to another web component that will create it).
+     * Return an <code>ActionForward</code> instance describing where and how
+     * control should be forwarded, or <code>null</code> if the response has
+     * already been completed.
+     */
+    public ActionForward execute(ActionMapping mapping,
+                                 ActionForm form,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response)
+    throws Exception {
+
+        // These "messages" come from the ApplicationResources.properties file
+        MessageResources messages = getResources(request);
+
+        /*
+         * Validate the request parameters specified by the user
+         * Note: Basic field validation done in HelloForm.java
+         *       Business logic validation done in HelloAction.java
+         */
+        ActionMessages errors = new ActionMessages();
+        HttpSession session = request.getSession(true);        
+
+        javax.sql.DataSource dataSource = null;
+        java.sql.Connection myConnection = null;
+        PreparedStatement stmt = null;
+        Statement s = null;
+        ResultSet rs = null;
+        String first = (String)request.getParameter("first");
+        if (first.equals("true")){
+           String userName = (String)((ScoreForm) form).getUserName();
+           String playerId = (String)((ScoreForm) form).getPlayerId();
+           String vote = (String)((ScoreForm) form).getVote();
+           try {
+              dataSource = getDataSource(request);
+              myConnection = dataSource.getConnection();
+
+              stmt = myConnection.prepareStatement("insert into student_vote(studentNo, playerId, vote) values(?,?,?)");  
+              stmt.clearParameters();
+              stmt.setString(1, userName);              
+              stmt.setString(2, playerId); 
+              stmt.setString(3, vote); 
+              stmt.execute();
+           }catch (SQLException sqle) {
+              getServlet().log("In ScoreAction.java, Connection.process", sqle);
+           } finally {          
+              try {                 
+                 if (stmt != null) stmt.close();
+                 if (myConnection != null) myConnection.close();
+              } catch (SQLException e) {
+                 getServlet().log("In ScoreAction.java, Connection.close", e);
+              }
+           }        
+        }
+        
+        //HashSet hashSet = new HashSet();
+        //Hashtable hashtable = new Hashtable();
+
+        int totalNumberPlayers = 0;
+        int totalNumberVote = 0;
+        int totalNumberVoteYes = 0;
+        try {
+           dataSource = getDataSource(request);
+           myConnection = dataSource.getConnection();
+           //Class.forName("org.hsqldb.jdbcDriver");
+           //myConnection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");
+           // do what you wish with myConnection          
+           
+           s = myConnection.createStatement();
+           rs = s.executeQuery("select score from students");
+           while (rs.next()){
+              int usedScore = rs.getInt("score");
+              hashSet.add(new Integer(usedScore));
+              getServlet().log("hashSet part is reached");
+           }
+
+           Object[] hsArray = hashSet.toArray();
+           for (int i=0; i<hsArray.length; i++){
+              Integer integer = (Integer)hsArray[i];
+              stmt = myConnection.prepareStatement("select score from students where score=?");
+              stmt.clearParameters();
+              stmt.setInt(1, integer.intValue());
+              rs = stmt.executeQuery();
+              int numberScore = 0;
+              while (rs.next()){
+                 int usedScore = rs.getInt("score");
+                 numberScore ++;                 
+                 getServlet().log("hashtable part is reached");
+              }
+              hashtable.put(integer, new Integer(numberScore));
+            }
+        } catch (SQLException sqle) {
+           getServlet().log("Connection.process", sqle);
+        } finally {
+           //enclose this in a finally block to make
+           //sure the connection is closed
+           try {
+              rs.close();
+              stmt.close();
+              s.close();
+              myConnection.close();
+           } catch (SQLException e) {
+             getServlet().log("Connection.close", e);
+         }
+       }
+   
+       request.removeAttribute(mapping.getAttribute());
+       session.setAttribute( Constants.SCORE_KEY, hashtable); 
+       request.setAttribute( Constants.SCORE_KEY, hashtable);    
+         
+       return (mapping.findForward("ShowScore"));  
+       
+        
+        //pb.saveToPersistentStore();
+
+        /*
+         * If there was a choice of View components that depended on the model
+         * (or some other) status, we'd make the decision here as to which
+         * to display. In this case, there is only one View component.
+         *
+         * We pass data to the View components by setting them as attributes
+         * in the page, request, session or servlet context. In this case, the
+         * most appropriate scoping is the "request" context since the data
+         * will not be neaded after the View is generated.
+         *
+         * Constants.PERSON_KEY provides a key accessible by both the
+         * Controller component (i.e. this class) and the View component
+         * (i.e. the jsp file we forward to).
+         */     
+        
+    }
+}

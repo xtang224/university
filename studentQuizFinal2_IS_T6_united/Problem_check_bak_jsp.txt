@@ -1,0 +1,66 @@
+<%@ page language="java" import="java.sql.*, java.util.*, java.lang.*" errorPage="errorpage.jsp" %>
+<%@page pageEncoding="GB18030"%> 
+
+<BASEFONT FACE="Comic Sans MS" COLOR="LightYellow" >
+
+<%! HttpSession session=null;
+String answer = null;
+String correctAnswer = null;
+String correctSolution = null;
+Integer score = null;
+int total_score = 0;
+int this_score = 0;
+int id = 0;
+String strId = null;
+int count = 0;
+Integer countQuestion = null;
+HashSet answeredQuestions = null;
+%>
+
+<% session = request.getSession(true);
+   correctAnswer = (String)session.getAttribute("correctChoice");
+   correctSolution = (String)session.getAttribute("solution");
+   answeredQuestions = (HashSet)session.getAttribute("answeredQuestions");
+   score = (Integer)session.getAttribute("score");   
+   total_score = score.intValue();
+   answer = (String)request.getParameter("answer");
+   strId = (String)request.getParameter("id"); 
+   id = Integer.parseInt(strId); 
+   answeredQuestions.add(new Integer(id));
+   countQuestion = (Integer)session.getAttribute("count");  
+   count = countQuestion.intValue();
+
+if (answer.toLowerCase().equals(correctAnswer.toLowerCase())){
+   this_score = 1;
+   total_score += this_score;
+} else {
+   this_score = 0;
+   total_score += this_score;
+}
+%>
+
+<html>
+<head><center><h2>Question <%= id%> Solution</h2></center></head>
+<body>
+
+<%
+while(!answeredQuestions.add(new Integer(id))){
+   id = (int)(Math.random() * 28 + 0.5);
+}
+score = new Integer(total_score);
+session.setAttribute("score", score);
+session.setAttribute("firstQuestion", "false");
+%>
+
+<center><h2><%= correctSolution %></h2></center>
+<center><h2>Your have answered <%= count %> question(s)</h2></center>
+<center><h2>Your score: <%=score.intValue() %></h2></center>
+<center><h2><a href=Problem.jsp?id=<%=id%>>Please click here to continue</a></h2></center>
+<% if (count%10 == 0) { %>
+   <center><h2><a href=logout_pre.jsp?id=<%=id%>>Please click here to exit</a></h2></center>
+<% } 
+   count++;
+   session.setAttribute("count", new Integer(count));
+%>
+</body>
+</html>

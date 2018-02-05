@@ -1,0 +1,94 @@
+#Application Resources for the "Hello" sample application
+
+#Application Resources that are specific to the hello.jsp file
+
+hello.jsp.title=Final Exam
+hello.jsp.page.heading=Welcome to the final exam page
+hello.jsp.prompt.username=Please input your student id
+hello.jsp.prompt.truename=Please input your true name
+hello.jsp.prompt.password=Please input your password
+hello.jsp.prompt.checkPassword=Please input your password again
+hello.jsp.prompt.phoneNumber=Please input your phoneNumber
+hello.jsp.prompt.emailAddress=Please input your email address
+hello.jsp.prompt.source=Please input the source of this test
+
+#hello.jsp.page.heading=欢迎进入随机计分测试网站
+#hello.jsp.prompt.username=请输入你的学�?#hello.jsp.prompt.password=请输入你的密�?
+hello.jsp.prompt.person=Please click the submit button to enter the final exam.
+hello.jsp.prompt.quizTime=Please input the quiz times:
+hello.jsp.prompt.smart.person=Please click the submit button to enter the final exam.
+hello.jsp.prompt.continue=Please click the submit button to continue.
+hello.jsp.prompt.updateScore=Please enter the score of the selected student, and then click the submit button to continue
+hello.jsp.prompt.problem=Please enter only one letter of the above four choices(A, B, C or D), which represents the answer best fitting the problem, then click the button to submit.
+hello.jsp.prompt.choice=Please enter only one letter of T (for true) if you think the above statement is correct, otherwise enter only one letter of F (for false), then click the button to submit.
+hello.jsp.prompt.fillblank=Please enter only one word(two words connected with a short dash is considered as one word) which you think best suits the blank of paratheses in the above statement, then click the button to submit.
+hello.jsp.prompt.filldoubleblank=Please enter two words(two words connected with a short dash is considered as one word) only, separated by semi colon (;), which best suit the two blanks of paratheses in the above statement, respectively. The order of your answers should be the same as that of the blanks in the statement. Then click the button to submit.
+hello.jsp.prompt.multipleproblem=Please enter all the letters of the above four choices(A, B, C or D), which represesent the answers fitting the problem, then click the button to submit. 
+hello.jsp.prompt.vote=please type "yes" or "no":    
+#hello.jsp.page.hello=你好�?
+#hello.jsp.page.student=同学�?
+hello.jsp.page.hello=Hello 
+hello.jsp.page.student=
+hello.jsp.page.selectedStudent=Selected Student:
+hello.jsp.page.doubleColon=::
+hello.jsp.page.secondsRemaining=Your remaining seconds are:
+#hello.jsp.page.failLogin1=你没有注册这门课，请和唐晓宇老师联系，他的联系方式：电话�?027)68753887,15902752545;电子邮件�?xtang224@hotmail.com
+#hello.jsp.page.failLogin2=你注册了这门课，但是密码输入错误；第�?��登录时，密码是你的学号的�?位数字；若有其他问题，请和唐晓宇老师联系，他的联系方#式：电话�?027)68753887,15902752545;电子邮件：xtang224@hotmail.com
+hello.jsp.page.failLogin1=You have not registered this course yet. Please contact Mr. Xiaoyu Tang. His contact information:(office phone)027-68753887,(cell)15902752545,(email)xtang224@hotmail.com. Or, you can re-enter the course website and register first.
+hello.jsp.page.failLogin2=You have registered this course, but the password you just entered was wrong. The first time when you login, the default password is the last 4 digits of your student id. You can change the default password after logging in. If there is any other problem, please contact Mr. Xiaoyu Tang. His contact information:(office phone)027-68753887,(cell)15902752545,(email)xtang224@hotmail.com
+
+hello.jsp.page.failRegister1=Either your student id or your true name is empty, please re-register.
+hello.jsp.page.failRegister2=The two passwords do not match with each other, please re-register.
+hello.jsp.page.failRegister3=The STUDENT Id already exists in the database, the first time login password is the last 4 digits of the STUDENT Id.
+
+hello.jsp.page.problem=Question
+hello.jsp.page.solution=The Correct Solution Is:
+hello.jsp.page.explanation=The Reason Is:
+hello.jsp.page.inputAnswer=Your Answer Is:
+hello.jsp.page.lastCorrect=Your Answer of the Last Problem Is:
+hello.jsp.page.answeredProblems=The Number of Problems You Have Answered Is:
+hello.jsp.page.correctAnswers=The Number of Problems You Have Answered Correctly Is:
+hello.jsp.page.answeredProblems_low=The Number of Type Low Problems You Have Answered Is:
+hello.jsp.page.correctAnswers_low=The Number of Type Low Problems You Have Answered Correctly Is:
+hello.jsp.page.answeredProblems_middle=The Number of Type Middle Problems You Have Answered Is:
+hello.jsp.page.correctAnswers_middle=The Number of Type Middle Problems You Have Answered Correctly Is:
+hello.jsp.page.answeredProblems_high=The Number of Type High Problems You Have Answered Is:
+hello.jsp.page.correctAnswers_high=The Number of Type High Problems You Have Answered Correctly Is:
+hello.jsp.page.totalScore=Your Total Score Is:
+hello.jsp.title.quit=Now, you are ready to quit
+hello.jsp.page.heading.quit=In the process of quitting...
+
+hello.jsp.page.changePassword=If you want to change your password, please fill in the following forms, then click the submit button below
+hello.jsp.prompt.oldPassword=Please fill in the old password
+hello.jsp.prompt.newPassword=Please fill in the new password
+hello.jsp.prompt.confirmNewPassword=Please fill in the new password again
+
+hello.jsp.page.showScore=The distribution of scores of all the class is listed as follows:
+
+#Validation and error messages for HelloForm.java and HelloAction.java
+
+hello.dont.talk.to.monster=We don't want to say hello to Monster!!!
+hello.no.username.error=Please enter a <i>UserName</i> to say hello to!
+hello.jsp.page.pair=Your pair information is following: 
+hello.jsp.page.pairPlayerId=Your playerId is:  
+hello.jsp.page.pairFirstPlayer=The First Player is:
+hello.jsp.page.pairSecondPlayer=The Second Player is:  
+hello.jsp.page.pairPlanStatus=Plan Status is: 
+hello.jsp.page.pairFirstPlayerPayment=According to the plan, the first player will get:
+hello.jsp.page.pairSecondPlayerPayment=According to the plan, the second player will get:
+hello.jsp.page.pairPlanProposer=The plan proposer now is:   
+hello.jsp.page.pairWait=The pair order has not been initiated yet. Please click the submit button once in a while to check if the pair order is set.
+hello.jsp.page.pair2000Zero=The number of players is even. Therefore, you are set as player0 and will not participate the game yourself. Have a good time.
+
+hello.jsp.prompt.pair=Please click the submit button to enter the game
+hello.jsp.prompt.submitProposerNotSubmitted=The plan has not been submitted. As a proposer, please submit your pair plan:
+hello.jsp.prompt.submitNonProposerNotSubmitted=The plan has not been submitted. As a non-proposer, please click the submit button to check whether the plan is submitted:
+hello.jsp.prompt.submitProposerPartnerNotReply=The plan has been submitted, but your partner has not replied yet. As a proposer, please click the submit button to check whether your partner has replied:
+hello.jsp.prompt.submitNonProposerPartnerNotReply=The plan has been submitted, but you have not replied yet. As a partner, please reply by entering "agree" if you accept the plan or entering "not agree" if you do not accept the plan. By default, any input other than "not agree" will be treated as "agree":
+hello.jsp.prompt.submitProposerPartnerReject=The plan has been rejected. Now it is the turn for your partner to make the plan proposal, please click the button to make the switch:
+hello.jsp.prompt.submitNonProposerPartnerReject=You have rejected the plan. Now it is your turn to make the plan proposal. However, this switch needs to be notified by your partner. Please click the submit button to continue:
+
+hello.jsp.page.planProposer=The plan proposer is:
+hello.jsp.page.planWait=The plan order has not been initiated yet. Please click the submit button once in a while to check if the plan order is set.
+
+hello.jsp.prompt.proposePlan=As a proposer, please provide your plan. Please write down each player's points, separated by a semi-colon(";") bwteen any two players. The order of the points should match exactly the order of the players in the above table.  

@@ -1,0 +1,72 @@
+<%@ include file="taglibs.jsp" %>
+
+<html:html locale="true">
+  <head>   
+    <html:base/>
+  </head>
+  <body bgcolor="white"><p>    
+
+   <html:errors/><p> 
+
+    <logic:present name="problembean" scope="session">
+       <h2>
+         <bean:message key="hello.jsp.page.hello"/>
+         <bean:write name="problembean" property="statement" /><p>
+         <bean:write name="problembean" property="choiceA" /><p>
+         <bean:write name="problembean" property="choiceB" /><p>
+         <bean:write name="problembean" property="choiceC" /><p>
+         <bean:write name="problembean" property="choiceD" /><p>
+       </h2>
+    </logic:present>
+
+    <%! HttpSession session = null; 
+        hello.ProblemBean _pb = null;
+        hello.PersonBean _pb2 = null;
+    %>
+    <% session = request.getSession(true);     
+       _pb = (hello.ProblemBean)session.getAttribute(hello.Constants.PROBLEM_KEY);
+       _pb2 = (hello.PersonBean)session.getAttribute(hello.Constants.PERSON_KEY);
+    %>
+    They are received.
+    <%
+       session.setAttribute(hello.Constants.PROBLEM_KEY, _pb);
+       session.setAttribute(hello.Constants.PERSON_KEY, _pb2);
+       request.setAttribute(hello.Constants.PROBLEM_KEY, _pb);
+       request.setAttribute(hello.Constants.PERSON_KEY, _pb2);
+    %>
+
+
+    <html:form action="/ProblemCheck.do" >
+
+      <bean:message key="hello.jsp.prompt.problem"/>
+      <html:text property="inputAnswer" size="16" maxlength="16"/><br>
+      <html:hidden property="correctAnswer" value="<%= _pb.getCorrectChoice()%>"/><br>
+      <html:hidden property="solution" value="A"/><br>
+
+      <html:submit property="submit" value="Submit"/>
+      <html:reset/>
+
+    </html:form><br>
+
+    <html:img page="/struts-power.gif" alt="Powered by Struts"/>
+
+    <jsp:useBean id="pb" scope="session" class="hello.ProblemBean" />
+    <jsp:useBean id="pb2" scope="session" class="hello.PersonBean" />
+    <%! HttpSession session = null; 
+        hello.ProblemBean _pb = null;
+        hello.PersonBean _pb2 = null;
+    %>
+    <% session = request.getSession(true);     
+       _pb = (hello.ProblemBean)session.getAttribute(hello.Constants.PROBLEM_KEY);
+       _pb2 = (hello.PersonBean)session.getAttribute(hello.Constants.PERSON_KEY);
+    %>
+    They are received.
+    <%
+       session.setAttribute(hello.Constants.PROBLEM_KEY, _pb);
+       session.setAttribute(hello.Constants.PERSON_KEY, _pb2);
+       request.setAttribute(hello.Constants.PROBLEM_KEY, _pb);
+       request.setAttribute(hello.Constants.PERSON_KEY, _pb2);
+    %>
+
+  </body>
+</html:html>

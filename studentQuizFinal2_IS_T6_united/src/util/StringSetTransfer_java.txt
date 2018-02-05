@@ -1,0 +1,448 @@
+package util;
+
+import java.util.*;
+
+public class StringSetTransfer{
+
+   public static HashSet hs_low = null;
+   public static HashSet hs_middle = null;
+   public static HashSet hs_high = null;
+   public static int total = 0;
+   public static int continueCorrect = 0;
+   public static int continueWrong = 0;
+
+   public static char lastType = 'L';   
+   public static boolean lastCorrect = false;
+   public static boolean neverHigh = true;
+
+   public static int problem_low = 0;
+   public static int correct_low = 0;
+   public static int problem_middle = 0;
+   public static int correct_middle = 0;
+   public static int problem_high = 0;
+   public static int correct_high = 0;
+
+   public static HashSet hs_low_tf = null;
+   public static HashSet hs_middle_tf = null;
+   public static HashSet hs_high_tf = null;
+   public static int total_tf = 0;
+
+   public static HashSet mhs_low = null;
+   public static HashSet mhs_middle = null;
+   public static HashSet mhs_high = null;
+   public static int mtotal = 0;
+
+   public static HashSet hs_low_fb = null;
+   public static HashSet hs_middle_fb = null;
+   public static HashSet hs_high_fb = null;
+   public static int total_fb = 0;
+
+   public static HashSet hs_low_fdb = null;
+   public static HashSet hs_middle_fdb = null;
+   public static HashSet hs_high_fdb = null;
+   public static int total_fdb = 0;
+
+   public static String setToString(HashSet hs){
+      String ret = "";
+      Object[] obj = hs.toArray();
+      for (int i=0; i<obj.length; i++){
+         int value = ((Integer)obj[i]).intValue();
+         ret += value + ";";
+      }
+      return ret;
+   }
+
+   public static HashSet stringToSet(String str){
+      HashSet hs = new HashSet();
+      StringTokenizer tokenizer = new StringTokenizer(str, ";", false);
+      while (tokenizer.hasMoreTokens()){
+          int value = Integer.parseInt(tokenizer.nextToken());
+          Integer integer = new Integer(value);
+          hs.add(integer);
+      }
+      return hs;
+   }
+
+   public static char getNextType(char lastType, boolean lastCorrect, int continueRight, int continueWrong){
+      char thisType = 'L';
+      if (lastCorrect){
+         switch (lastType){
+            case 'L':
+              thisType = 'M';
+              break;
+            case 'M':
+              thisType = 'H';              
+              break;
+            case 'H':
+              neverHigh = false;
+              continueRight ++;
+              if (continueRight == 3){
+                 thisType = 'M';
+                 continueRight = 0;
+              }else{
+                 thisType = 'H'; 
+              }             
+              break;
+            default:
+              thisType = 'L';
+              break;
+         }
+      }else{
+         switch (lastType){
+            case 'L':
+              continueWrong ++;
+               if (continueWrong == 3){
+                 thisType = 'M';
+                 continueWrong = 0;
+              }else{
+                 thisType = 'L'; 
+              }       
+              break;
+            case 'M':
+              thisType = 'L';
+              break;
+            case 'H':
+              neverHigh = false;
+              thisType = 'M';
+              break;
+            default:
+              thisType = 'L';
+              break;
+         }
+      }
+      return thisType;
+   }
+
+   public static int getRandomNumber(HashSet usedHashSet){
+      char thisType = 'L';
+      if (lastCorrect){
+         switch (lastType){
+            case 'L':
+              thisType = 'M';
+              break;
+            case 'M':
+              thisType = 'H';              
+              break;
+            case 'H':
+              neverHigh = false;
+              continueCorrect ++;
+              if (continueCorrect == 3){
+                 thisType = 'M';
+                 continueCorrect = 0;
+              }else{
+                 thisType = 'H'; 
+              }             
+              break;
+            default:
+              thisType = 'L';
+              break;
+         }
+      }else{
+         switch (lastType){
+            case 'L':
+              continueWrong ++;
+               if (continueWrong == 3){
+                 thisType = 'M';
+                 continueWrong = 0;
+              }else{
+                 thisType = 'L'; 
+              }       
+              break;
+            case 'M':
+              thisType = 'L';
+              break;
+            case 'H':
+              neverHigh = false;
+              thisType = 'M';
+              break;
+            default:
+              thisType = 'L';
+              break;
+         }
+      }
+      lastType = thisType;
+      return getRandomNumber(thisType, usedHashSet);
+   }
+
+   public static int getRandomNumber(char type, HashSet usedHashSet){
+      int id = 0;
+      outer:
+      while(true){
+         id = (int)(Math.random() * total + 0.5);
+         switch (type){
+            case 'L':
+               if (usedHashSet.containsAll(hs_low)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_low.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'M':
+               if (usedHashSet.containsAll(hs_middle)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_middle.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'H':
+               if (usedHashSet.containsAll(hs_high)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_high.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            default:
+               break;
+         }
+
+         if (usedHashSet.contains(new Integer(id))) continue;
+         else break; 
+      }
+      return id;
+   }
+
+   public static int getRandomNumber_tf(char type, HashSet usedHashSet){
+      int id = 0;
+      outer:
+      while(true){
+         id = (int)(Math.random() * total_tf + 0.5);
+         switch (type){
+            case 'L':
+               if (usedHashSet.containsAll(hs_low_tf)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_low_tf.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'M':
+               if (usedHashSet.containsAll(hs_middle_tf)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_middle_tf.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'H':
+               if (usedHashSet.containsAll(hs_high_tf)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_high_tf.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            default:
+               break;
+         }
+
+         if (usedHashSet.contains(new Integer(id))) continue;
+         else break; 
+      }
+      return id;
+   }
+
+   public static int get_M_RandomNumber(char type, HashSet usedHashSet){
+      int id = 0;
+      outer:
+      while(true){
+         id = (int)(Math.random() * mtotal + 0.5);
+         switch (type){
+            case 'L':
+               if (usedHashSet.containsAll(mhs_low)){
+                  id = 0;
+                  break outer;
+               }
+               if (!mhs_low.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'M':
+               if (usedHashSet.containsAll(mhs_middle)){
+                  id = 0;
+                  break outer;
+               }
+               if (!mhs_middle.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'H':
+               if (usedHashSet.containsAll(mhs_high)){
+                  id = 0;
+                  break outer;
+               }
+               if (!mhs_high.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            default:
+               break;
+         }
+
+         if (usedHashSet.contains(new Integer(id))) continue;
+         else break; 
+      }
+      return id;
+   }
+
+   public static int getRandomNumber_fb(char type, HashSet usedHashSet){
+      int id = 0;
+      outer:
+      while(true){
+         id = (int)(Math.random() * total_fb + 0.5);
+         switch (type){
+            case 'L':
+               if (usedHashSet.containsAll(hs_low_fb)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_low_fb.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'M':
+               if (usedHashSet.containsAll(hs_middle_fb)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_middle_fb.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'H':
+               if (usedHashSet.containsAll(hs_high_fb)){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_high_fb.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            default:
+               break;
+         }
+
+         if (usedHashSet.contains(new Integer(id))) continue;
+         else break; 
+      }
+      return id;
+   }
+
+   public static int getRandomNumber_fdb(char type, HashSet usedHashSet){
+      int id = 0;
+      outer:
+      while(true){
+         id = (int)(Math.random() * total_fdb + 0.5);
+         switch (type){
+            case 'L':
+               if (usedHashSet.containsAll(hs_low_fdb)){
+                  id = 0;
+                  break outer;
+               }
+               if (hs_low_fdb.size() == 0){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_low_fdb.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'M':
+               if (usedHashSet.containsAll(hs_middle_fdb)){
+                  id = 0;
+                  break outer;
+               }
+               if (hs_middle_fdb.size() == 0){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_middle_fdb.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            case 'H':
+               if (usedHashSet.containsAll(hs_high_fdb)){
+                  id = 0;
+                  break outer;
+               }
+               if (hs_high_fdb.size() == 0){
+                  id = 0;
+                  break outer;
+               }
+               if (!hs_high_fdb.contains(new Integer(id))){
+                  continue outer;   
+               }
+               break;
+            default:
+               break;
+         }
+
+         if (usedHashSet.contains(new Integer(id))) continue;
+         else break; 
+      }
+      return id;
+   }
+
+   public static int[] rate(boolean _lastCorrect, char _lastType){
+      lastCorrect = _lastCorrect;
+      int score = 0;
+      problem_low = 0;
+      correct_low = 0;
+      problem_middle = 0;
+      correct_middle = 0;
+      problem_high = 0;
+      correct_high = 0;
+      if (lastCorrect){
+         switch (_lastType){
+            case 'L':
+              problem_low ++;
+              correct_low ++;
+              score = 1;
+              break;
+            case 'M':
+              problem_middle ++;
+              correct_middle ++;
+              score = 2;             
+              break;
+            case 'H':
+              problem_high ++;
+              correct_high ++;
+              score = 3;
+              break;
+            default:
+              score = 1;
+              break;
+         }
+      }else{
+         switch (_lastType){
+            case 'L':
+              problem_low ++;             
+              break;
+            case 'M': 
+              problem_middle ++;                                 
+              break;
+            case 'H':
+              problem_high ++;                         
+              break;
+            default:              
+              break;
+         }
+      }
+      int[] ret = new int[7];
+      ret[0]=score; 
+      ret[1]=problem_low; ret[2]=correct_low;
+      ret[3]=problem_middle; ret[4]=correct_middle;
+      ret[5]=problem_high; ret[6]=correct_high;
+      return ret;
+   }
+ 
+}
+

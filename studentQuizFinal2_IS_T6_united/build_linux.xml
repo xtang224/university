@@ -1,0 +1,66 @@
+<project name="ec_quiz_random_struts" default="compile" basedir=".">
+
+<!-- ===================== Property Definitions =========================== -->
+<!--  <property name="tomcat.home" value="D:/Tomcat_6.0" /> -->
+<!-- <property name="tomcat.home" value="/media/软件/Tomcat_6.0_e" /> -->
+
+  <property name="tomcat.home" value="/home/xtang/Tomcat_6.0" />  
+  <property name="app.home"          value="." />
+ 
+  <property name="src.home"          value="${app.home}/src"/>
+  <property name="lib.home"          value="${app.home}/WEB-INF/lib"/>
+  <property name="classes.home"       value="${app.home}/WEB-INF/classes"/>
+  <property name="j2ee.home" value="/home/xtang/Tomcat_6.0/common" /> 
+  <!--  <property name="j2ee.home" value="D:/Tomcat_6.0/common" />  -->
+  
+<!-- ==================== Compilation Classpath =========================== -->
+
+    <!--
+         This section creates the classpath for compilation.
+    -->
+
+  <path id="compile.classpath">
+
+    <!-- The object files for this application -->
+    <pathelement location="${classes.home}"/>
+
+    <!-- The lib files for this application -->
+    <fileset dir="${lib.home}">
+      <include name="*.jar"/>
+      <include name="*.zip"/>
+    </fileset>
+
+    <!-- All files/jars that Tomcat makes available -->
+    <fileset dir="${tomcat.home}/lib">
+      <include name="*.jar"/>
+    </fileset>
+    <fileset dir="${j2ee.home}/lib">
+      <include name="j2ee.jar"/>
+    </fileset>
+
+  <!--  <pathelement location="${tomcat.home}/common/classes"/>
+ -->
+
+  </path>
+
+<!-- ==================== "compile" Target ================================ -->
+
+    <!--
+          This only compiles java files that are newer
+          than their corresponding .class files.
+     -->
+
+   <target name="clean">
+      <delete>
+         <fileset dir="${classes.home}" includes="**/*.class"/>
+      </delete>
+   </target>
+
+  <target name="compile"  depends="clean">
+    <javac srcdir="${src.home}" destdir="${classes.home}" debug="yes" >
+        <include name="**/*.java" />
+        <classpath refid="compile.classpath"/>
+    </javac>
+  </target>
+
+</project>

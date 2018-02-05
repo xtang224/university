@@ -1,0 +1,38 @@
+<%@ include file="taglibs.jsp" %>
+
+<html:html locale="true">
+  <head>
+    <title><bean:message key="hello.jsp.title"/></title>
+    <html:base/>
+  </head>
+  <body bgcolor="white"><p>
+
+    <h2><bean:message key="hello.jsp.page.heading"/></h2><p>
+
+   <html:errors/><p>     
+
+    <html:form action="/Register.do" >
+
+      <bean:message key="hello.jsp.prompt.username"/><html:text property="userName" size="16" maxlength="16"/>
+      <br>
+      <bean:message key="hello.jsp.prompt.truename"/><html:text property="trueName" size="16" maxlength="200"/>
+      <br>
+      <bean:message key="hello.jsp.prompt.phoneNumber"/><html:text property="phoneNumber" size="30" maxlength="50"/>
+      <br>
+      <bean:message key="hello.jsp.prompt.emailAddress"/><html:text property="emailAddress" size="50" maxlength="100"/>
+      <br>
+      <bean:message key="hello.jsp.prompt.password"/><html:password property="passWord" size="16" maxlength="30"/>
+      <br>
+      <bean:message key="hello.jsp.prompt.checkPassword"/><html:password property="checkPassWord" size="16" maxlength="30"/>
+      <br>
+
+      <html:submit property="submit" value="Submit"/>
+      <html:reset/>
+
+    </html:form><br>
+
+
+    <html:img page="/struts-power.gif" alt="Powered by Struts"/>
+
+  </body>
+</html:html>

@@ -1,0 +1,111 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+ <script type="text/javascript">
+    function doSubmit() {
+       window.open('TermMatch_Check.jsp?userName=#{termTableBean3.userName}');
+       window.close();
+    }
+ </script>
+
+        <f:metadata>
+           <f:viewParam name="answeredHashSet" value="#{termTableBean3.answeredHashSet}" />
+           <f:viewParam name="answeredHashSet_tf" value="#{termTableBean3.answeredHashSet_tf}" />
+           <f:viewParam name="answered_M_HashSet" value="#{termTableBean3.answered_M_HashSet}" />
+           <f:viewParam name="answeredHashSet_fb" value="#{termTableBean3.answeredHashSet_fb}" />
+           <f:viewParam name="answeredHashSet_fdb" value="#{termTableBean3.answeredHashSet_fdb}" />
+           <f:viewParam name="answeredHashSet_tm" value="#{termTableBean3.answeredHashSet_tm}" />
+           <f:viewParam name="answeredProblems" value="#{termTableBean3.answeredProblems}" />
+           <f:viewParam name="correctAnswers" value="#{termTableBean3.correctAnswers}" />
+           <f:viewParam name="totalScore" value="#{termTableBean3.totalScore}" />
+           <f:viewParam name="correctAnswers_low" value="#{termTableBean3.correctAnswers_low}" />
+           <f:viewParam name="answeredProblems_low" value="#{termTableBean3.answeredProblems_low}" />
+           <f:viewParam name="correctAnswers_middle" value="#{termTableBean3.correctAnswers_middle}" />
+           <f:viewParam name="answeredProblems_middle" value="#{termTableBean3.answeredProblems_middle}" />
+           <f:viewParam name="correctAnswers_high" value="#{termTableBean3.correctAnswers_high}" />
+           <f:viewParam name="answeredProblems_high" value="#{termTableBean3.answeredProblems_high}" />
+           <f:viewParam name="userName" value="#{termTableBean3.userName}" />
+           <f:viewParam name="passWord" value="#{termTableBean3.passWord}" />
+           <f:viewParam name="trueName" value="#{termTableBean3.trueName}" />
+           <f:viewParam name="lastType" value="#{termTableBean3.lastType}" />
+           <f:viewParam name="thisType" value="#{termTableBean3.thisType}" />
+           <f:viewParam name="times" value="#{termTableBean3.times}" />
+           <f:viewParam name="randomNumber" value="#{termTableBean3.randomNumber}" />
+           <f:viewParam name="id" value="#{termTableBean3.id}" />
+           <f:viewParam name="planStatus" value="#{termTableBean3.planStatus}" />
+        </f:metadata>
+       
+	<h:head></h:head>
+	
+	<h:body>
+      
+	
+<h:form id="termForm">
+
+    <p:fieldset legend="Available Terms">
+        <p:dataTable id="availableTerms" var="term" value="#{termTableBean3.termsSmall}">
+            <p:column style="width:20px">
+                <h:outputText id="dragIcon"
+                    styleClass="ui-icon ui-icon-arrow-4" />
+                <p:draggable for="dragIcon" revert="true" />
+            </p:column>
+
+            <p:column headerText="Content">
+                <h:outputText value="#{term.content}" />
+            </p:column>
+        </p:dataTable>
+    </p:fieldset>
+
+    <p:panel>
+       <h:outputText value="#{termTableBean3.correctContent}" />
+    </p:panel>
+
+    <p:fieldset id="selectedTerms" legend="Selected Terms" style="margin-top:20px">
+        <p:outputPanel id="dropArea">
+            <h:outputText value="!!!Drop here!!!"
+                    rendered="#{empty termTableBean3.droppedTerms}"
+                    style="font-size:24px;" />
+
+            <p:dataTable var="term" value="#{termTableBean3.droppedTerms}" 
+                    rendered="#{not empty termTableBean3.droppedTerms}">
+
+                <p:column headerText="Content">
+                    <h:outputText value="#{term.content}" />
+                </p:column>                
+
+                <p:column style="width:32px">
+                    <p:commandButton update=":termForm:display"
+                            oncomplete="termDialog.show()"
+                            icon="ui-icon-search">
+                        <f:setPropertyActionListener value="#{term}"
+                            target="#{termTableBean3.selectedTerm}" />
+                    </p:commandButton>
+                </p:column>
+               
+            </p:dataTable>
+        </p:outputPanel>
+    </p:fieldset>
+
+    <p:droppable for="selectedTerms" tolerance="touch" activeStyleClass="ui-state-highlight" datasource="availableTerms">
+        <input type="hidden" name="hidden1" value="#{termTableBean3.userName}" />
+        <p:ajax listener="#{termTableBean3.onTermDrop}" update="dropArea availableTerms" />
+    </p:droppable>
+
+        <p:dialog header="Term Detail" widgetVar="termDialog" resizable="false" draggable="false"
+              width="200" showEffect="fade" hideEffect="fade" modal="true">
+
+        <h:panelGrid id="display" columns="2" cellpadding="4">
+
+            <h:outputText value="Correct or Not:" />
+            <h:outputText value="#{termTableBean3.selectedTerm.rightAnswer}"/>
+
+        </h:panelGrid>
+    </p:dialog>
+
+</h:form>
+
+<a href="#" onclick="doSubmit()">Please click here to continue</a>
+		
+	</h:body>
+</html>

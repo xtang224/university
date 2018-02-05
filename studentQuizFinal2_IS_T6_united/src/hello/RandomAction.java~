@@ -1,0 +1,404 @@
+package hello;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
+
+import java.util.*;
+import java.sql.*;
+import java.io.*;
+import javax.sql.*;
+
+import util.*;
+
+public final class RandomAction extends Action {
+
+    /**
+     * Process the specified HTTP request, and create the corresponding HTTP
+     * response (or forward to another web component that will create it).
+     * Return an <code>ActionForward</code> instance describing where and how
+     * control should be forwarded, or <code>null</code> if the response has
+     * already been completed.
+     */
+    
+
+    public ActionForward execute(ActionMapping mapping,
+                                 ActionForm form,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response)
+    throws Exception {
+
+        // These "messages" come from the ApplicationResources.properties file
+        MessageResources messages = getResources(request);
+
+        /*
+         * Validate the request parameters specified by the user
+         * Note: Basic field validation done in HelloForm.java
+         *       Business logic validation done in HelloAction.java
+         */
+        ActionMessages errors = new ActionMessages();
+        HttpSession session = request.getSession(true);
+        ProblemBean pb = null;
+        ChoiceBean cb = null;
+        String first = null;
+        first = (String)request.getParameter("first"); 
+
+        PersonBean pb2 = null;
+        pb2 = new PersonBean();
+        String userName = (String)((RandomForm) form).getUserName();
+        String passWord = (String)((RandomForm) form).getPassWord();
+        String trueName = (String)((RandomForm) form).getTrueName();
+        String playerId = (String)((RandomForm) form).getPlayerId();
+        pb2.setUserName(userName);
+        pb2.setPassWord(passWord); 
+        pb2.setTrueName(trueName); 
+        pb2.setPlayerId(playerId);
+
+        String questionUsedUp = (String)((RandomForm) form).getQuestionUsedUp();
+        pb2.setQuestionUsedUp(questionUsedUp);
+
+        //StringSetTransfer stringSetTransfer = new StringSetTransfer(userName);
+        
+        javax.sql.DataSource dataSource = null;
+        java.sql.Connection myConnection = null;
+        Statement s = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        pb = new ProblemBean(); 
+        cb = new ChoiceBean(); 
+        HashSet hs = null; 
+        HashSet hs_tf = null;
+        if (first.equals("true")){
+            hs = new HashSet(); 
+            hs.add(new Integer(0));
+            hs_tf = new HashSet();
+            hs_tf.add(new Integer(0));
+            HashSet hs_total = new HashSet();
+            HashSet hs_total_tf = new HashSet();
+            int count = 0;
+            try{
+                //we will try to initiate the usedQuestions first, then generate the random question id 
+               dataSource = getDataSource(request);
+               myConnection = dataSource.getConnection();
+               //Class.forName("org.hsqldb.jdbcDriver");
+               //myConnection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");               
+
+               if (!userName.equals("2000")){
+                  stmt = myConnection.prepareStatement("update student_score set status = 'active' where studentNo = ?");
+                  stmt.clearParameters();
+                  stmt.setString(1, userName);
+                  stmt.executeUpdate();   
+        
+                  s = myConnection.createStatement();
+                  rs = s.executeQuery("select status from student_score where studentNo = '2000' ");
+                  String status = null;
+                  while (rs.next()){
+                     status = rs.getString("status");
+                  }
+                  if (status == null || status.equals("") || status.equals("not active")){
+                     request.removeAttribute(mapping.getAttribute());     
+                     session.setAttribute( Constants.PERSON_KEY, pb2); 
+                     request.setAttribute( Constants.PERSON_KEY, pb2); 
+                     return (mapping.findForward("ShowPairWait"));        
+                  }
+               }else{//userName.equals("2000")
+                     s = myConnection.createStatement();
+                     s.executeUpdate("delete from student_vote");
+ 
+                     s = myConnection.createStatement();
+               rs = s.executeQuery("select studentNo from student_score where status = 'active' and studentNo <> '2000' ");
+                     count = 0;
+                     while (rs.next()){
+                        count++;
+                        tempUserName = rs.getString("studentNo");
+                        tempPlayerId = "player" + count;
+                        
+stmt = myConnection.prepareStatement("update student_score set playerId = '" + tempPlayerId + "' where studentNo = ?");
+                        stmt.clearParameters();
+                        stmt.setString(1, tempUserName);
+                        stmt.executeUpdate();
+
+stmt = myConnection.prepareStatement("update student_time set playerId = '" + tempPlayerId + "' where studentNo = ?");
+                        stmt.clearParameters();
+                        stmt.setString(1, tempUserName);
+                        stmt.executeUpdate();
+                     }
+
+                     HashSet set2 = new HashSet();
+                     s = myConnection.createStatement();
+                     rs = s.executeQuery("select studentNo from student_score");
+                     while(rs.next()){
+                        tempUserName = rs.getString("studentNo");
+                        set2.add(tempUserName);
+                     }
+   
+                     s = myConnection.createStatement();
+            rs = s.executeQuery("select studentNo from student_score where status='active'");       
+                     while(rs.next()){
+                        tempUserName = rs.getString("studentNo");
+                        set2.remove(tempUserName);
+                     }
+
+                     Iterator iter = set2.iterator();
+                     while(iter.hasNext()){
+                        tempUserName = (String)iter.next();
+                         s = myConnection.createStatement();
+                  s.executeUpdate("update student_score set playerId = 'player0' where studentNo ='" + tempUserName +"'");
+                        s = myConnection.createStatement();
+                  s.executeUpdate("update student_time set playerId = 'player0' where studentNo ='" + tempUserName + "'");
+                     }
+
+                     s = myConnection.createStatement();
+                     s.executeUpdate("update student_score set status = 'initiated' where studentNo ='2000' ");
+
+               }
+
+               s = myConnection.createStatement();
+               rs = s.executeQuery("select playerId from student_score where studentNo = '" + userName + "'");
+               while (rs.next()){
+                  playerId = rs.getString("playerId");
+               }
+               pb2.setPlayerId(playerId);
+
+               s = myConnection.createStatement();
+               rs = s.executeQuery("select id from usedQuestions where studentNo='" + userName + "'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs.add(new Integer(usedId));
+               }
+               rs = s.executeQuery("select id from questions");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_total.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_total = hs_total;
+
+               rs = s.executeQuery("select id from usedChoices where studentNo='" + userName + "'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_tf.add(new Integer(usedId));
+               }
+               rs = s.executeQuery("select id from choices");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_total_tf.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_total_tf = hs_total_tf;
+            }catch (SQLException sqle) {
+               getServlet().log("Connection.process", sqle);
+            } finally {           
+                try {
+                    if (rs != null) rs.close();
+                    if (s != null) s.close();
+                    if (myConnection != null) myConnection.close();
+                } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                }
+            }
+        }else{
+            String answeredHashSetStr = (String)((RandomForm) form).getAnsweredHashSet();
+            hs = StringSetTransfer.stringToSet(answeredHashSetStr);
+            String answeredHashSetStr_tf = (String)((RandomForm) form).getAnsweredHashSet_tf();
+            hs_tf = StringSetTransfer.stringToSet(answeredHashSetStr_tf);
+
+            //String totalHashSetStr = (String)((RandomForm) form).getTotalHashSet();
+            //getServlet().log("inside RandomAction.java, totalHashSetStr = " + totalHashSetStr);
+            //StringSetTransfer.hs_total = StringSetTransfer.stringToSet(totalHashSetStr); 
+            //String totalHashSetStr_tf = (String)((RandomForm) form).getTotalHashSet_tf();
+            //StringSetTransfer.hs_total_tf = StringSetTransfer.stringToSet(totalHashSetStr_tf); 
+        }
+
+        //now we are going to first draw a random number 0 or 1 to decide to use problem.jsp or choice.jsp
+        //then we are going to decide the correspondent id
+        int randomNumber = 0;
+        HashSet control = new HashSet();
+        control.add(new Integer(0)); control.add(new Integer(1)); 
+        HashSet forCom = new HashSet();
+        int id = 0;
+
+        outer:
+        while(true){
+           if (forCom.size() == control.size()){
+              System.err.println("The problems with approprate type are used up.");
+              questionUsedUp = "true";
+              pb2.setQuestionUsedUp(questionUsedUp);
+              break outer;
+           }
+           randomNumber = (int)(Math.random() * 1 + 0.5);
+           if (forCom.add(new Integer(randomNumber)) == false){
+              continue outer;
+           }           
+
+           id = 0;
+           switch(randomNumber){
+              case 0:
+                 id = StringSetTransfer.getRandomNumber(hs, StringSetTransfer.hs_total);
+                 if (id == 0) continue outer;
+                 break;
+              case 1:
+                 id = StringSetTransfer.getRandomNumber(hs_tf, StringSetTransfer.hs_total_tf);
+                 if (id == 0) continue outer;
+                 break;
+              default: 
+                 break;
+           }
+           if (id != 0) break outer;
+        }        
+
+        try {
+           dataSource = getDataSource(request);
+           myConnection = dataSource.getConnection();
+           //Class.forName("org.hsqldb.jdbcDriver");
+           //myConnection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");
+           // do what you wish with myConnection
+          
+           switch(randomNumber){
+              case 0:
+                 hs.add(new Integer(id));
+                 stmt = myConnection.prepareStatement("select * from questions where id=?");
+                 stmt.clearParameters();
+                 stmt.setInt(1, id);
+                 rs = stmt.executeQuery();
+                 while (rs.next()){
+                    pb.setId(rs.getInt("id"));
+                    pb.setStatement(rs.getString("statement"));
+                    pb.setChoiceA(rs.getString("choiceA"));
+                    pb.setChoiceB(rs.getString("choiceB"));
+                    pb.setChoiceC(rs.getString("choiceC"));
+                    pb.setChoiceD(rs.getString("choiceD"));
+                    pb.setCorrectChoice(rs.getString("correctChoice")); 
+                    pb.setSolution(rs.getString("solution"));             
+                 }
+                 break;
+              case 1:
+                 hs_tf.add(new Integer(id)); 
+                 stmt = myConnection.prepareStatement("select * from choices where id=?");               
+                 stmt.clearParameters();
+                 stmt.setInt(1, id);
+                 rs = stmt.executeQuery();
+                 while (rs.next()){
+                    cb.setId(rs.getInt("id"));
+                    cb.setStatement(rs.getString("statement"));
+                    cb.setChoice(rs.getString("choice"));     
+                    cb.setSolution(rs.getString("solution"));                           
+                 }
+                 break;
+              default:
+                 break;     
+           }
+           
+        } catch (SQLException sqle) {
+           getServlet().log("Connection.process", sqle);
+        } finally {
+           //enclose this in a finally block to make
+           //sure the connection is closed
+           try {
+              if (rs != null) rs.close();
+              if (s != null) s.close();
+              if (stmt != null) stmt.close();
+              if (myConnection != null) myConnection.close();
+           } catch (SQLException e) {
+             getServlet().log("Connection.close", e);
+         }
+       }
+        
+        pb.saveToPersistentStore();
+
+        /*
+         * If there was a choice of View components that depended on the model
+         * (or some other) status, we'd make the decision here as to which
+         * to display. In this case, there is only one View component.
+         *
+         * We pass data to the View components by setting them as attributes
+         * in the page, request, session or servlet context. In this case, the
+         * most appropriate scoping is the "request" context since the data
+         * will not be neaded after the View is generated.
+         *
+         * Constants.PERSON_KEY provides a key accessible by both the
+         * Controller component (i.e. this class) and the View component
+         * (i.e. the jsp file we forward to).
+         */
+
+        // Remove the Form Bean - don't need to carry values forward
+        request.removeAttribute(mapping.getAttribute());
+
+        switch (randomNumber){
+           case 0:
+              request.setAttribute( Constants.PROBLEM_KEY, pb);        
+              session.setAttribute( Constants.PROBLEM_KEY, pb); 
+              break;
+           case 1:
+              request.setAttribute( Constants.CHOICE_KEY, cb);        
+              session.setAttribute( Constants.CHOICE_KEY, cb);   
+              break;
+           default:
+              break;
+        }
+       
+        session.setAttribute( Constants.HASHSET_KEY, StringSetTransfer.setToString(hs));   
+        session.setAttribute( Constants.HASHSET_TF_KEY, StringSetTransfer.setToString(hs_tf));   
+   //getServlet().log("inside RandomAction.java, at the time of setAttribute, hs :: " + StringSetTransfer.setToString(hs));
+//getServlet().log("inside RandomAction.java, at the time of setAttribute, hs_tf :: " + StringSetTransfer.setToString(hs_tf));    
+        //session.setAttribute( Constants.HASHSET_TOTAL_KEY, StringSetTransfer.setToString(StringSetTransfer.hs_total));
+        //session.setAttribute( Constants.HASHSET_TOTAL_TF_KEY, StringSetTransfer.setToString(StringSetTransfer.hs_total_tf));
+
+        request.setAttribute( Constants.HASHSET_KEY, StringSetTransfer.setToString(hs));   
+        request.setAttribute( Constants.HASHSET_TF_KEY, StringSetTransfer.setToString(hs_tf));   
+        //request.setAttribute( Constants.HASHSET_TOTAL_KEY, StringSetTransfer.setToString(StringSetTransfer.hs_total));
+        //request.setAttribute( Constants.HASHSET_TOTAL_TF_KEY, StringSetTransfer.setToString(StringSetTransfer.hs_total_tf));
+          
+        
+        if (first.equals("true")){           
+           pb2.setAnsweredProblems(0);
+           pb2.setCorrectAnswers(0);           
+        }else {
+           String answeredProblems = (String)((RandomForm) form).getAnsweredProblems();
+           String correctAnswers = (String)((RandomForm) form).getCorrectAnswers();
+           int intAnsweredProblems = Integer.parseInt(answeredProblems);
+           int intCorrectAnswers = Integer.parseInt(correctAnswers);
+           
+           pb2.setAnsweredProblems(intAnsweredProblems);
+           pb2.setCorrectAnswers(intCorrectAnswers); 
+        }
+        String times = (String)((RandomForm) form).getTimes();
+        pb2.setTimes(times);
+        pb2.setRandomNumber(new Integer(randomNumber).toString());
+       
+        session.setAttribute( Constants.PERSON_KEY, pb2); 
+        request.setAttribute( Constants.PERSON_KEY, pb2); 
+
+        //now we are going to set up the timer
+        if (first.equals("true")){
+           Timer aTimer = new Timer(userName);
+           MyTask myTask = new MyTask(userName);           
+           aTimer.scheduleAtFixedRate(myTask, 0, 30000);
+        }
+
+        if (userName.equals("2000")){
+           return (mapping.findForward("Show2000Zero"));
+        }             
+
+        // Forward control to the specified success URI
+        switch (randomNumber){
+           case 0:
+              return (mapping.findForward("ShowProblem"));               
+           case 1:
+              return (mapping.findForward("ShowChoice")); 
+           default:
+              break;
+        }
+        return (mapping.findForward("ShowProblem"));        
+    }
+
+    
+}

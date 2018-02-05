@@ -1,0 +1,731 @@
+package hello;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
+
+import java.util.*;
+import java.sql.*;
+import java.io.*;
+import javax.sql.*;
+
+import util.*;
+
+public final class SmartRandomAction extends Action {
+
+    /**
+     * Process the specified HTTP request, and create the corresponding HTTP
+     * response (or forward to another web component that will create it).
+     * Return an <code>ActionForward</code> instance describing where and how
+     * control should be forwarded, or <code>null</code> if the response has
+     * already been completed.
+     */
+    public ActionForward execute(ActionMapping mapping,
+                                 ActionForm form,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response)
+    throws Exception {
+
+        // These "messages" come from the ApplicationResources.properties file
+        MessageResources messages = getResources(request);
+
+        /*
+         * Validate the request parameters specified by the user
+         * Note: Basic field validation done in HelloForm.java
+         *       Business logic validation done in HelloAction.java
+         */
+        ActionMessages errors = new ActionMessages();
+        HttpSession session = request.getSession(true);
+        SmartProblemBean pb = null;
+        SmartChoiceBean cb = null;
+        SmartMultipleProblemBean mpb = null;
+        FillBlankBean fbb = null;
+        FillDoubleBlankBean fdbb = null;
+        String first = null;
+        first = (String)request.getParameter("first"); 
+
+        PersonBean pb2 = null;
+        pb2 = new PersonBean();
+        String userName = (String)((SmartRandomForm) form).getUserName();
+        String passWord = (String)((SmartRandomForm) form).getPassWord();
+        String trueName = (String)((SmartRandomForm) form).getTrueName();
+        pb2.setUserName(userName);
+        pb2.setPassWord(passWord); 
+        pb2.setTrueName(trueName); 
+        
+        
+        javax.sql.DataSource dataSource = null;
+        java.sql.Connection myConnection = null;
+        Statement s = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        pb = new SmartProblemBean();
+        cb = new SmartChoiceBean();
+        mpb = new SmartMultipleProblemBean(); 
+        fbb = new FillBlankBean();
+        fdbb = new FillDoubleBlankBean();     
+        HashSet hs = null;
+        HashSet hs_tf = null;
+        HashSet mhs = null;
+        HashSet hs_fb = null;
+        HashSet hs_fdb = null;
+        
+        if (first.equals("true")){
+            hs = new HashSet(); 
+            hs.add(new Integer(0));
+            hs_tf = new HashSet();
+            hs_tf.add(new Integer(0));
+            mhs = new HashSet();
+            mhs.add(new Integer(0));
+            hs_fb = new HashSet(); 
+            hs_fb.add(new Integer(0));
+            hs_fdb = new HashSet(); 
+            hs_fdb.add(new Integer(0));
+            HashSet hs_low = new HashSet();
+            HashSet hs_middle = new HashSet(); 
+            HashSet hs_high = new HashSet();
+            HashSet hs_low_tf = new HashSet();
+            HashSet hs_middle_tf = new HashSet(); 
+            HashSet hs_high_tf = new HashSet();
+            HashSet mhs_low = new HashSet();
+            HashSet mhs_middle = new HashSet(); 
+            HashSet mhs_high = new HashSet();
+            HashSet hs_low_fb = new HashSet();
+            HashSet hs_middle_fb = new HashSet(); 
+            HashSet hs_high_fb = new HashSet();
+            HashSet hs_low_fdb = new HashSet();
+            HashSet hs_middle_fdb = new HashSet(); 
+            HashSet hs_high_fdb = new HashSet();
+            try{
+                //we will try to initiate the usedQuestions first, then generate the random question id 
+               dataSource = getDataSource(request);
+               myConnection = dataSource.getConnection();
+               //Class.forName("org.hsqldb.jdbcDriver");
+               //myConnection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");
+               s = myConnection.createStatement();
+               rs = s.executeQuery("select id from usedQuestions2 where studentNo='" + userName + "'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs.add(new Integer(usedId));
+               }
+               rs = s.executeQuery("select id from questions2 where type='L'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_low.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_low = hs_low;
+               rs = s.executeQuery("select id from questions2 where type='M'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_middle.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_middle = hs_middle;
+               rs = s.executeQuery("select id from questions2 where type='H'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_high.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_high = hs_high;
+               rs = s.executeQuery("select id from questions2");         
+               int numberId = 0;
+               while (rs.next()){
+                 int usedId = rs.getInt("id");
+                 numberId ++;                 
+                 //getServlet().log("score part is reached");
+               }  
+               StringSetTransfer.total = numberId;
+
+               rs = s.executeQuery("select id from usedChoices2 where studentNo='" + userName + "'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_tf.add(new Integer(usedId));
+               }
+               rs = s.executeQuery("select id from choices2 where type='L'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_low_tf.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_low_tf = hs_low_tf;
+               rs = s.executeQuery("select id from choices2 where type='M'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_middle_tf.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_middle_tf = hs_middle_tf;
+               rs = s.executeQuery("select id from choices2 where type='H'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_high_tf.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_high_tf = hs_high_tf;
+               rs = s.executeQuery("select id from choices2");         
+               numberId = 0;
+               while (rs.next()){
+                 int usedId = rs.getInt("id");
+                 numberId ++;                 
+                 //getServlet().log("score part is reached");
+               }  
+               StringSetTransfer.total_tf = numberId;
+
+            rs = s.executeQuery("select id from usedMultipleQuestions2 where studentNo='" + userName + "'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  mhs.add(new Integer(usedId));
+               }
+               rs = s.executeQuery("select id from multipleQuestions2 where type='L'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  mhs_low.add(new Integer(usedId));
+               }
+               StringSetTransfer.mhs_low = mhs_low;
+               rs = s.executeQuery("select id from multipleQuestions2 where type='M'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  mhs_middle.add(new Integer(usedId));
+               }
+               StringSetTransfer.mhs_middle = mhs_middle;
+               rs = s.executeQuery("select id from multipleQuestions2 where type='H'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  mhs_high.add(new Integer(usedId));
+               }
+               StringSetTransfer.mhs_high = mhs_high;
+               rs = s.executeQuery("select id from multipleQuestions2");         
+               numberId = 0;
+               while (rs.next()){
+                 int usedId = rs.getInt("id");
+                 numberId ++;                 
+                 //getServlet().log("score part is reached");
+               }  
+               StringSetTransfer.mtotal = numberId;
+
+               rs = s.executeQuery("select id from usedFillBlank2 where studentNo='" + userName + "'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_fb.add(new Integer(usedId));
+               }
+               rs = s.executeQuery("select id from fillBlank2 where type='L'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_low_fb.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_low_fb = hs_low_fb;
+               rs = s.executeQuery("select id from fillBlank2 where type='M'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_middle_fb.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_middle_fb = hs_middle_fb;
+               rs = s.executeQuery("select id from fillBlank2 where type='H'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_high_fb.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_high_fb = hs_high_fb;
+               rs = s.executeQuery("select id from fillBlank2");         
+               numberId = 0;
+               while (rs.next()){
+                 int usedId = rs.getInt("id");
+                 numberId ++;                 
+                 //getServlet().log("score part is reached");
+               }  
+               StringSetTransfer.total_fb = numberId;
+
+             rs = s.executeQuery("select id from usedFillDoubleBlanks2 where studentNo='" + userName + "'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_fdb.add(new Integer(usedId));
+               }
+               rs = s.executeQuery("select id from fillDoubleBlanks2 where type='L'");                
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_low_fdb.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_low_fdb = hs_low_fdb;
+               rs = s.executeQuery("select id from fillDoubleBlanks2 where type='M'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_middle_fdb.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_middle_fdb = hs_middle_fdb;
+               rs = s.executeQuery("select id from fillDoubleBlanks2 where type='H'");
+               while (rs.next()){
+                  int usedId = rs.getInt("id");
+                  hs_high_fdb.add(new Integer(usedId));
+               }
+               StringSetTransfer.hs_high_fdb = hs_high_fdb;
+               rs = s.executeQuery("select id from fillDoubleBlanks2");         
+               numberId = 0;
+               while (rs.next()){
+                 int usedId = rs.getInt("id");
+                 numberId ++;                 
+                 //getServlet().log("score part is reached");
+               }  
+               StringSetTransfer.total_fdb = numberId;
+
+               getServlet().log("the total number of questions: " + (StringSetTransfer.total_fdb+StringSetTransfer.total_fb+StringSetTransfer.mtotal+StringSetTransfer.total_tf+StringSetTransfer.total) + "");
+               getServlet().log("among which, the total number of type low questions: " + (StringSetTransfer.hs_low_fdb.size()+StringSetTransfer.hs_low_fb.size()+StringSetTransfer.mhs_low.size()+StringSetTransfer.hs_low_tf.size()+StringSetTransfer.hs_low.size()) + "");
+               getServlet().log("among which, the total number of type middle questions: " + (StringSetTransfer.hs_middle_fdb.size()+StringSetTransfer.hs_middle_fb.size()+StringSetTransfer.mhs_middle.size()+StringSetTransfer.hs_middle_tf.size()+StringSetTransfer.hs_middle.size()) + "");     
+               getServlet().log("among which, the total number of type high questions: " + (StringSetTransfer.hs_high_fdb.size()+StringSetTransfer.hs_high_fb.size()+StringSetTransfer.mhs_high.size()+StringSetTransfer.hs_high_tf.size()+StringSetTransfer.hs_high.size()) + "");          
+
+            }catch (SQLException sqle) {
+               getServlet().log("Connection.process", sqle);
+            } finally {           
+                try {
+                    rs.close();
+                    s.close();
+                    myConnection.close();
+                } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                }
+            }
+        }else{
+            String answeredHashSetStr = (String)((SmartRandomForm) form).getAnsweredHashSet();
+            hs = StringSetTransfer.stringToSet(answeredHashSetStr);
+            String answeredHashSetStr_tf = (String)((SmartRandomForm) form).getAnsweredHashSet_tf();
+            hs_tf = StringSetTransfer.stringToSet(answeredHashSetStr_tf);
+            String answered_M_HashSetStr = (String)((SmartRandomForm) form).getAnswered_M_HashSet();
+            mhs = StringSetTransfer.stringToSet(answered_M_HashSetStr);
+            String answeredHashSetStr_fb = (String)((SmartRandomForm) form).getAnsweredHashSet_fb();
+            hs_fb = StringSetTransfer.stringToSet(answeredHashSetStr_fb);
+            String answeredHashSetStr_fdb = (String)((SmartRandomForm) form).getAnsweredHashSet_fdb();
+            hs_fdb = StringSetTransfer.stringToSet(answeredHashSetStr_fdb);
+        }
+         
+        String lastType = (String)((SmartRandomForm) form).getLastType();
+        String thisType = (String)((SmartRandomForm) form).getThisType();
+        String continueRight = (String)((SmartRandomForm) form).getContinueRight();
+        String continueWrong = (String)((SmartRandomForm) form).getContinueWrong();
+        int intContinueRight = Integer.parseInt(continueRight);
+        int intContinueWrong = Integer.parseInt(continueWrong);
+        String neverHigh = (String)((SmartRandomForm) form).getNeverHigh();
+        boolean boolNeverHigh = Boolean.parseBoolean(neverHigh);
+
+        int randomNumber = 0;
+        HashSet control = new HashSet();
+        control.add(new Integer(0)); control.add(new Integer(1)); control.add(new Integer(2)); control.add(new Integer(3)); control.add(new Integer(4));
+        HashSet forCom = new HashSet();
+       
+        outer:
+        while (true){
+           randomNumber = (int)(Math.random() * 4 + 0.5);
+           forCom.add(new Integer(randomNumber));
+           if (forCom.size() == control.size()){
+              System.err.println("The problems with approprate type are used up.");
+              break outer;
+           }
+
+           try {
+              dataSource = getDataSource(request);
+              myConnection = dataSource.getConnection();
+              //Class.forName("org.hsqldb.jdbcDriver");
+              //myConnection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");
+              // do what you wish with myConnection         
+                    
+              int id = 0;
+              String lastCorrect = (String)((SmartRandomForm) form).getLastCorrect();
+              if (first.equals("true")){
+                 switch (randomNumber){
+                    case 0:
+                       id = StringSetTransfer.getRandomNumber('L', hs); 
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    case 1:
+                       id = StringSetTransfer.getRandomNumber_tf('L', hs_tf);   
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    case 2:
+                       id = StringSetTransfer.get_M_RandomNumber('L', mhs);   
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    case 3:
+                       id = StringSetTransfer.getRandomNumber_fb('L', hs_fb);   
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    case 4:
+                       id = StringSetTransfer.getRandomNumber_fdb('L', hs_fdb);   
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    default:
+                       break;
+                 }              
+                 //StringSetTransfer.lastType = 'L';             
+              }else{
+                 boolean boolLastCorrect = Boolean.parseBoolean(lastCorrect);
+                 if (boolLastCorrect){
+                    switch (lastType.charAt(0)){
+                       case 'L':
+                          thisType = 'M' + "";
+                          break;
+                       case 'M':
+                          thisType = 'H' + "";              
+                          break;
+                       case 'H':
+                          boolNeverHigh = false;
+                          intContinueRight ++;
+                          if (intContinueRight == 3){
+                             thisType = 'M' + "";
+                             intContinueRight = 0;
+                          }else{
+                             thisType = 'H' + ""; 
+                          }             
+                          break;
+                       default:
+                          thisType = 'L' + "";
+                          break;
+                    }
+                 }else{
+                    switch (lastType.charAt(0)){
+                       case 'L':
+                          intContinueWrong ++;
+                          if (intContinueWrong == 3){
+                             thisType = 'M' + "";
+                             intContinueWrong = 0;
+                          }else{
+                             thisType = 'L' + ""; 
+                          }       
+                          break;
+                       case 'M':
+                          thisType = 'L' + "";
+                          break;
+                       case 'H':
+                          boolNeverHigh = false;
+                          thisType = 'M' + "";
+                          break;
+                       default:
+                          thisType = 'L' + "";
+                          break;
+                     }
+                 }
+      
+                 switch (randomNumber){
+                    case 0:
+                       id = StringSetTransfer.getRandomNumber(thisType.charAt(0), hs);
+                       if (id == 0){
+                          continue outer;
+                       } 
+                       break;
+                    case 1:
+                       id = StringSetTransfer.getRandomNumber_tf(thisType.charAt(0), hs_tf); 
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    case 2:
+                       id = StringSetTransfer.get_M_RandomNumber(thisType.charAt(0), mhs); 
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    case 3:
+                       id = StringSetTransfer.getRandomNumber_fb(thisType.charAt(0), hs_fb); 
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    case 4:
+                       id = StringSetTransfer.getRandomNumber_fdb(thisType.charAt(0), hs_fdb); 
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    default:
+                       break;
+                 }           
+              
+                 lastType = thisType;
+              }
+              pb2.setLastType(lastType);
+              pb2.setThisType(thisType);
+              pb2.setContinueRight(intContinueRight);
+              pb2.setContinueWrong(intContinueWrong);
+              pb2.setNeverHigh(boolNeverHigh);
+
+              String answeredProblems = (String)((SmartRandomForm) form).getAnsweredProblems();
+              int intAnsweredProblems = Integer.parseInt(answeredProblems);           
+              if ((intAnsweredProblems == 9) && (boolNeverHigh == true)){
+                 switch (randomNumber){
+                    case 0:
+                       id = StringSetTransfer.getRandomNumber('H', hs);  
+                       if (id == 0){
+                          continue outer;
+                       }
+                       break;
+                    case 1:
+                       id = StringSetTransfer.getRandomNumber_tf('H', hs_tf); 
+                       if (id == 0){
+                          continue outer;
+                       }  
+                       break;
+                    case 2:
+                       id = StringSetTransfer.get_M_RandomNumber('H', mhs); 
+                       if (id == 0){
+                          continue outer;
+                       }  
+                       break;
+                    case 3:
+                       id = StringSetTransfer.getRandomNumber_fb('H', hs_fb); 
+                       if (id == 0){
+                          continue outer;
+                       }  
+                       break; 
+                    case 4:
+                       id = StringSetTransfer.getRandomNumber_fdb('H', hs_fdb); 
+                       if (id == 0){
+                          continue outer;
+                       }  
+                       break;                     
+                    default:
+                       break;
+                 }          
+              
+                 thisType = "H";
+                 lastType = "H";  
+                 pb2.setLastType(lastType);
+                 pb2.setThisType(thisType);
+              }
+
+              switch (randomNumber){
+                 case 0:
+                    hs.add(new Integer(id));  
+                    stmt = myConnection.prepareStatement("select * from questions2 where id=?");
+                    stmt.clearParameters();
+                    stmt.setInt(1, id);
+                    rs = stmt.executeQuery();
+                    while (rs.next()){
+                       pb.setId(rs.getInt("id"));
+                       pb.setStatement(rs.getString("statement"));
+                       pb.setChoiceA(rs.getString("choiceA"));
+                       pb.setChoiceB(rs.getString("choiceB"));
+                       pb.setChoiceC(rs.getString("choiceC"));
+                       pb.setChoiceD(rs.getString("choiceD"));
+                       pb.setCorrectChoice(rs.getString("correctChoice")); 
+                       pb.setSolution(rs.getString("solution"));                             
+                       pb.setType(rs.getString("type"));
+                    }
+                    break;
+                 case 1:
+                    hs_tf.add(new Integer(id)); 
+                    stmt = myConnection.prepareStatement("select * from choices2 where id=?");
+                    getServlet().log("Here, inside SmartRandomAction.java, when select * from choices2 where id=?,  id = " + id);
+                    stmt.clearParameters();
+                    stmt.setInt(1, id);
+                    rs = stmt.executeQuery();
+                    while (rs.next()){
+                       cb.setId(rs.getInt("id"));
+                       cb.setStatement(rs.getString("statement"));
+                       cb.setChoice(rs.getString("choice"));     
+                       cb.setSolution(rs.getString("solution"));         
+                       cb.setType(rs.getString("type"));
+                    }
+                    break;
+                 case 2:
+                    mhs.add(new Integer(id));  
+                    stmt = myConnection.prepareStatement("select * from multipleQuestions2 where id=?");
+                    stmt.clearParameters();
+                    stmt.setInt(1, id);
+                    rs = stmt.executeQuery();
+                    while (rs.next()){
+                       mpb.setId(rs.getInt("id"));
+                       mpb.setStatement(rs.getString("statement"));
+                       mpb.setChoiceA(rs.getString("choiceA"));
+                       mpb.setChoiceB(rs.getString("choiceB"));
+                       mpb.setChoiceC(rs.getString("choiceC"));
+                       mpb.setChoiceD(rs.getString("choiceD"));
+                       mpb.setChoiceE(rs.getString("choiceE"));
+                       mpb.setCorrectChoice(rs.getString("correctChoice")); 
+                       mpb.setSolution(rs.getString("solution"));                              
+                       mpb.setType(rs.getString("type"));
+                    }
+                    break;
+                 case 3:
+                    hs_fb.add(new Integer(id)); 
+                    stmt = myConnection.prepareStatement("select * from fillBlank2 where id=?");
+                    stmt.clearParameters();
+                    stmt.setInt(1, id);
+                    rs = stmt.executeQuery();
+                    while (rs.next()){
+                       fbb.setId(rs.getInt("id"));
+                       fbb.setStatement_1st(rs.getString("statement_1st"));
+                       fbb.setStatement_2nd(rs.getString("statement_2nd"));
+                       fbb.setSolution(rs.getString("solution"));
+                       fbb.setType(rs.getString("type"));
+                    }
+                    break;
+                 case 4:
+                    hs_fdb.add(new Integer(id)); 
+                    stmt = myConnection.prepareStatement("select * from fillDoubleBlanks2 where id=?");
+                    stmt.clearParameters();
+                    stmt.setInt(1, id);
+                    rs = stmt.executeQuery();
+                    while (rs.next()){
+                       fdbb.setId(rs.getInt("id"));
+                       fdbb.setStatement_1st(rs.getString("statement_1st"));
+                       fdbb.setStatement_2nd(rs.getString("statement_2nd"));
+                       fdbb.setStatement_3rd(rs.getString("statement_3rd"));
+                       fdbb.setSolution_1st(rs.getString("solution_1st"));
+                       fdbb.setSolution_2nd(rs.getString("solution_2nd"));
+                       String source = rs.getString("source");
+                       fdbb.setType(rs.getString("type"));
+                    }
+                    getServlet().log("at initiation in SmartRandomActioin: fdbb is reached");
+                    break;
+                 default:
+                    break;
+              }                       
+           } catch (SQLException sqle) {
+              getServlet().log("Connection.process", sqle);
+           } finally {
+              //enclose this in a finally block to make
+              //sure the connection is closed
+              try {
+                 if (rs != null) rs.close();             
+                 if (stmt != null) stmt.close();
+                 if (myConnection != null) myConnection.close();
+              } catch (SQLException e) {
+                 getServlet().log("Connection.close", e);
+              }
+           } 
+          
+        }
+        
+        //pb.saveToPersistentStore();
+
+        /*
+         * If there was a choice of View components that depended on the model
+         * (or some other) status, we'd make the decision here as to which
+         * to display. In this case, there is only one View component.
+         *
+         * We pass data to the View components by setting them as attributes
+         * in the page, request, session or servlet context. In this case, the
+         * most appropriate scoping is the "request" context since the data
+         * will not be neaded after the View is generated.
+         *
+         * Constants.PERSON_KEY provides a key accessible by both the
+         * Controller component (i.e. this class) and the View component
+         * (i.e. the jsp file we forward to).
+         */
+
+        // Remove the Form Bean - don't need to carry values forward
+        request.removeAttribute(mapping.getAttribute());
+
+        switch (randomNumber){
+            case 0:
+               request.setAttribute( Constants.PROBLEM_KEY, pb);        
+               session.setAttribute( Constants.PROBLEM_KEY, pb); 
+               break;
+            case 1:
+               request.setAttribute( Constants.CHOICE_KEY, cb);        
+               session.setAttribute( Constants.CHOICE_KEY, cb);   
+               break;
+            case 2:
+               request.setAttribute( Constants.MULTIPLEPROBLEM_KEY, mpb);        
+               session.setAttribute( Constants.MULTIPLEPROBLEM_KEY, mpb); 
+               break;
+            case 3:
+               request.setAttribute( Constants.FILLBLANK_KEY, fbb);        
+               session.setAttribute( Constants.FILLBLANK_KEY, fbb); 
+               break;
+            case 4:
+               request.setAttribute( Constants.FILLDOUBLEBLANK_KEY, fdbb);        
+               session.setAttribute( Constants.FILLDOUBLEBLANK_KEY, fdbb); 
+               break;
+            default:
+               break;
+        }          
+        
+        session.setAttribute( Constants.HASHSET_KEY, StringSetTransfer.setToString(hs));   
+        session.setAttribute( Constants.HASHSET_TF_KEY, StringSetTransfer.setToString(hs_tf));
+        session.setAttribute( Constants.HASHSET_M_KEY, StringSetTransfer.setToString(mhs)); 
+        session.setAttribute( Constants.HASHSET_FB_KEY, StringSetTransfer.setToString(hs_fb));
+        session.setAttribute( Constants.HASHSET_FDB_KEY, StringSetTransfer.setToString(hs_fdb));
+
+        request.setAttribute( Constants.HASHSET_KEY, StringSetTransfer.setToString(hs));   
+        request.setAttribute( Constants.HASHSET_TF_KEY, StringSetTransfer.setToString(hs_tf));
+        request.setAttribute( Constants.HASHSET_M_KEY, StringSetTransfer.setToString(mhs)); 
+        request.setAttribute( Constants.HASHSET_FB_KEY, StringSetTransfer.setToString(hs_fb)); 
+        request.setAttribute( Constants.HASHSET_FDB_KEY, StringSetTransfer.setToString(hs_fdb)); 
+
+        getServlet().log("at SmartRandomAction, hs string is " + StringSetTransfer.setToString(hs));
+        getServlet().log("SmartRandomAction, hs_tf str is " + StringSetTransfer.setToString(hs_tf));
+        getServlet().log("SmartRandomAction, mhs str is " + StringSetTransfer.setToString(mhs));   
+        getServlet().log("SmartRandomAction, hs_fb str is " + StringSetTransfer.setToString(hs_fb));   
+        getServlet().log("SmartRandomAction, hs_fdb str is " + StringSetTransfer.setToString(hs_fdb));                      
+        
+        String answeredProblems = (String)((SmartRandomForm) form).getAnsweredProblems();
+        String correctAnswers = (String)((SmartRandomForm) form).getCorrectAnswers();
+        int intAnsweredProblems = Integer.parseInt(answeredProblems);
+        int intCorrectAnswers = Integer.parseInt(correctAnswers);           
+        pb2.setAnsweredProblems(intAnsweredProblems);
+        pb2.setCorrectAnswers(intCorrectAnswers); 
+
+        String totalScore = (String)((SmartRandomForm) form).getTotalScore();
+        String correctAnswers_low = (String)((SmartRandomForm) form).getCorrectAnswers_low();
+        String answeredProblems_low = (String)((SmartRandomForm) form).getAnsweredProblems_low();
+        int intTotalScore = Integer.parseInt(totalScore);
+        int intCorrectAnswers_low = Integer.parseInt(correctAnswers_low);
+        int intAnsweredProblems_low = Integer.parseInt(answeredProblems_low);                      
+        pb2.setTotalScore(intTotalScore);
+        pb2.setCorrectAnswers_low(intCorrectAnswers_low);
+        pb2.setAnsweredProblems_low(intAnsweredProblems_low);   
+
+        String correctAnswers_middle = (String)((SmartRandomForm) form).getCorrectAnswers_middle();
+        String answeredProblems_middle = (String)((SmartRandomForm) form).getAnsweredProblems_middle();        
+        int intCorrectAnswers_middle = Integer.parseInt(correctAnswers_middle);
+        int intAnsweredProblems_middle = Integer.parseInt(answeredProblems_middle);       
+        pb2.setCorrectAnswers_middle(intCorrectAnswers_middle);
+        pb2.setAnsweredProblems_middle(intAnsweredProblems_middle); 
+
+        String correctAnswers_high = (String)((SmartRandomForm) form).getCorrectAnswers_high();
+        String answeredProblems_high = (String)((SmartRandomForm) form).getAnsweredProblems_high();        
+        int intCorrectAnswers_high = Integer.parseInt(correctAnswers_high);
+        int intAnsweredProblems_high = Integer.parseInt(answeredProblems_high);       
+        pb2.setCorrectAnswers_high(intCorrectAnswers_high);
+        pb2.setAnsweredProblems_high(intAnsweredProblems_high);         
+
+        String times = (String)((SmartRandomForm) form).getTimes();
+        pb2.setTimes(times);
+        pb2.setRandomNumber(new Integer(randomNumber).toString());
+
+        session.setAttribute( Constants.PERSON_KEY, pb2); 
+        request.setAttribute( Constants.PERSON_KEY, pb2);              
+
+        // Forward control to the specified success URI
+        switch (randomNumber){
+            case 0:
+               return (mapping.findForward("ShowSmartProblem"));               
+            case 1:
+               return (mapping.findForward("ShowSmartChoice")); 
+            case 2:
+               return (mapping.findForward("ShowSmartMultipleProblem"));   
+            case 3:
+               return (mapping.findForward("ShowFillBlank"));   
+            case 4:
+               return (mapping.findForward("ShowFillDoubleBlank"));               
+            default:
+               break;
+        }          
+        return (mapping.findForward("ShowSmartProblem"));        
+    }
+}
+

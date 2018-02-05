@@ -1,0 +1,33 @@
+<%@ page language="java" import="java.sql.*, java.util.*, java.lang.*" errorPage="errorpage.jsp" %>
+<jsp:useBean id="db" scope="request" class="hello.DbBean" />
+<jsp:setProperty name="db" property="*" />
+
+<BASEFONT FACE="Comic Sans MS" COLOR="LightYellow">
+<html>
+<head><center><h2>Random Quiz Website</h2></center></head>
+<body>
+<center><h2>Welcome to the Random Quiz Website</h2></center><P>
+
+<%! HttpSession session=null;
+    HashSet answeredQuestions = null;
+    int id = 0;
+%>
+
+<% session = request.getSession(true);
+   try {
+      answeredQuestions = db.initAnsweredQuestions();
+   } catch (ClassNotFoundException e) {
+      throw new ServletException("Database drivers not available", e);
+   } catch (SQLException e) {
+      throw new ServletException("Database URL is wrong", e);
+   }   
+   answeredQuestions.add(new Integer(0));
+   while(!answeredQuestions.add(new Integer(id))){
+      id = (int)(Math.random() * 21 + 0.5);
+   }
+   session.setAttribute("answeredQuestions", answeredQuestions);
+   session.setAttribute("firstQuestion", "true");
+%>
+<center><h2><a href=Problem.jsp?id=<%=id%>>Please click here to continue</a></h2></center>
+</body>
+</html>

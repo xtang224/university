@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+          "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+
+<!--
+     This is the Struts configuration file for the "Hello!" sample application
+-->
+
+<struts-config>
+
+   <!-- ========== Database Definitions =========================== -->
+  <data-sources>
+    <!-- configuration for commons BasicDataSource -->
+    <data-source type="org.apache.commons.dbcp.BasicDataSource">
+       <set-property property="driverClassName" value="org.hsqldb.jdbcDriver" />
+       <set-property property="url" value="jdbc:hsqldb:hsql://localhost/xdb" />
+       <set-property property="username" value="SA" />
+       <set-property property="password" value="" />
+       <set-property property="maxActive" value="10" />
+       <set-property property="maxWait" value="5000" />
+       <set-property property="defaultAutoCommit" value="true" />
+       <set-property property="defaultReadWriteOnly" value="true" />
+       <set-property property="validationQuery" value="SELECT COUNT(*) FROM questions" />
+    </data-source>
+  </data-sources>
+
+  
+    <!-- ======== Form Bean Definitions =================================== -->
+    <form-beans>
+        <form-bean name="LoginForm" type="hello.LoginForm"/>
+        <form-bean name="RegisterForm" type="hello.RegisterForm"/>  
+        <form-bean name="PasswordForm" type="hello.PasswordForm"/>           
+        <form-bean name="SmartChoiceForm" type="hello.SmartChoiceForm"/>   
+        <form-bean name="SmartChoiceCheckForm" type="hello.SmartChoiceCheckForm"/>  
+        <form-bean name="RandomForm" type="hello.RandomForm"/>  
+        <form-bean name="RandomCheckForm" type="hello.RandomCheckForm"/>    
+        <form-bean name="SmartRandomForm" type="hello.SmartRandomForm"/>  
+        <form-bean name="SmartRandom2Form" type="hello.SmartRandom2Form"/> 
+        <form-bean name="SmartRandomCheckForm" type="hello.SmartRandomCheckForm"/>  
+        <form-bean name="SmartRandomCheck2Form" type="hello.SmartRandomCheck2Form"/>       
+        <form-bean name="QuitForm" type="hello.QuitForm"/>
+        <form-bean name="SmartQuitForm" type="hello.SmartQuitForm"/>
+        <form-bean name="ScoreForm" type="hello.ScoreForm"/>
+        <form-bean name="UpdateScoreForm" type="hello.UpdateScoreForm"/>
+    </form-beans>
+
+  <!-- ========== Global Forwards =========================== -->
+  <global-forwards>
+    <forward name="toError"  path="/errorpage.jsp"/>   
+  </global-forwards>
+
+  <!-- ========== Action Mapping Definitions ============================== -->
+  <action-mappings>
+    <!-- Check Login! -->
+    <action    path      = "/Login"
+               type      = "hello.LoginAction"
+               name      = "LoginForm"
+               scope     = "session"                
+               validate  = "true"
+               input     = "/login.jsp"
+     >
+        <forward name="CheckLogin" path="/checkLogin.jsp" />
+        <forward name="FailLogin1" path="/failLogin1.jsp" />
+        <forward name="FailLogin2" path="/failLogin2.jsp" />
+    </action>
+
+    <!-- Check Login! -->
+    <action    path      = "/Register"
+               type      = "hello.RegisterAction"
+               name      = "RegisterForm"
+               scope     = "session"                
+               validate  = "true"
+               input     = "/register.jsp"
+     >
+        <forward name="CheckLogin" path="/checkLogin.jsp" />
+        <forward name="FailRegister1" path="/failRegister1.jsp" />
+        <forward name="FailRegister2" path="/failRegister2.jsp" />
+        <forward name="FailRegister3" path="/failRegister3.jsp" />
+    </action>
+
+    <!-- Change Password! -->
+    <action    path      = "/Password"
+               type      = "hello.PasswordAction"
+               name      = "PasswordForm"
+               scope     = "session"                
+               validate  = "true"
+               input     = "/checkLogin.jsp"
+     >
+        <forward name="CheckLogin" path="/checkLogin.jsp" />        
+    </action>
+
+    <!-- Show Problems! -->
+    <action    path      = "/Random"
+               type      = "hello.RandomAction"
+               name      = "RandomForm"
+               scope     = "session"                
+               validate  = "true"
+               input     = "/checkLogin.jsp"
+     >
+        <forward name="ShowProblem" path="/Problem.jsp" />
+        <forward name="ShowChoice" path="/Choice.jsp" />
+        <forward name="ShowPairWait" path="/PairWait.jsp" />  
+        <forward name="Show2000Zero" path="/Pair2000Zero.jsp" />
+    </action>
+  
+    <!-- Check Problem answers! -->
+    <action    path      = "/RandomCheck"
+               type      = "hello.RandomCheckAction"
+               name      = "RandomCheckForm"
+               scope     = "session"                        
+               validate  = "true"
+               input     = "/Problem.jsp"
+     >
+        <forward name="ShowProblemSolution" path="/Problem_Check.jsp" />
+        <forward name="ShowChoiceSolution" path="/Choice_Check.jsp" />
+    </action>   
+
+     <!-- Show Smart Choices! -->
+    <action    path      = "/SmartChoice"
+               type      = "hello.SmartChoiceAction"
+               name      = "SmartChoiceForm"
+               scope     = "session"                
+               validate  = "true"
+               input     = "/SmartProblem_Check.jsp"
+     >
+        <forward name="ShowSmartChoice" path="/SmartChoice.jsp" />
+    </action>
+
+    <!-- Check Smart Choices' solutions! -->
+    <action    path      = "/SmartChoiceCheck"
+               type      = "hello.SmartChoiceCheckAction"
+               name      = "SmartChoiceCheckForm"
+               scope     = "session"                        
+               validate  = "true"
+               input     = "/SmartChoice.jsp"
+     >
+        <forward name="ShowSmartChoiceSolution" path="/SmartChoice_Check.jsp" />
+    </action> 
+
+   <!-- Show Smart Random Problems! -->
+    <action    path      = "/SmartRandom"
+               type      = "hello.SmartRandomAction"
+               name      = "SmartRandomForm"
+               scope     = "session"                
+               validate  = "true"
+               input     = "/checkLogin.jsp"
+     >
+        <forward name="ShowSmartProblem" path="/SmartProblem.jsp" />
+        <forward name="ShowSmartChoice" path="/SmartChoice.jsp" />
+        <forward name="ShowSmartMultipleProblem" path="/SmartMultipleProblem.jsp" />
+        <forward name="ShowFillBlank" path="/FillBlank.jsp" />
+        <forward name="ShowFillDoubleBlank" path="/FillDoubleBlank.jsp" />
+        <forward name="ShowFillQuadBlank" path="/FillQuadBlank.jsp" />
+        <forward name="ShowTermMatch" path="/TermMatch.jsp" /> 
+        <forward name="ShowSmartPairWait" path="/SmartPairWait.jsp" />  
+        <forward name="Show2000Zero" path="/Pair2000Zero.jsp" />        
+    </action>
+
+    <!-- update score for selected students! -->
+    <action    path      = "/SmartRandom2"
+               type      = "hello.SmartRandom2Action"
+               name      = "SmartRandom2Form"
+               scope     = "session"                
+               validate  = "true"
+               input     = "/SmartProblem_Check.jsp"
+     >
+        <forward name="ShowSmartProblem" path="/SmartProblem.jsp" />
+        <forward name="ShowSmartChoice" path="/SmartChoice.jsp" />
+        <forward name="ShowSmartMultipleProblem" path="/SmartMultipleProblem.jsp" />
+        <forward name="ShowFillBlank" path="/FillBlank.jsp" />
+        <forward name="ShowFillDoubleBlank" path="/FillDoubleBlank.jsp" />
+        <forward name="ShowFillQuadBlank" path="/FillQuadBlank.jsp" />
+        <forward name="ShowTermMatch" path="/TermMatch.jsp" /> 
+        <forward name="ShowSmartPairWait" path="/SmartPairWait.jsp" />             
+    </action>
+
+    <!-- Check Smart Random Problem answers! -->
+    <action    path      = "/SmartRandomCheck"
+               type      = "hello.SmartRandomCheckAction"
+               name      = "SmartRandomCheckForm"
+               scope     = "session"                        
+               validate  = "true"
+               input     = "/SmartProblem.jsp"
+     >
+        <forward name="ShowSmartProblemSolution" path="/SmartProblem_Check.jsp" />
+        <forward name="ShowSmartChoiceSolution" path="/SmartChoice_Check.jsp" />
+        <forward name="ShowSmartMultipleProblemSolution" path="/SmartMultipleProblem_Check.jsp" />
+        <forward name="ShowFillBlankSolution" path="/FillBlank_Check.jsp" />
+        <forward name="ShowFillDoubleBlankSolution" path="/FillDoubleBlank_Check.jsp" />
+        <forward name="ShowFillQuadBlankSolution" path="/FillQuadBlank_Check.jsp" />
+        <forward name="ShowTermMatchSolution" path="/TermMatchCheck" />
+    </action>
+
+    <!-- Skip Smart Random Problem answers! -->
+    <action    path      = "/SmartRandomCheck2"
+               type      = "hello.SmartRandomCheck2Action"
+               name      = "SmartRandomCheck2Form"
+               scope     = "session"                        
+               validate  = "true"
+               input     = "/SmartProblem"
+     >
+        <forward name="ShowSmartProblemSolution" path="/SmartProblem_Check.jsp" />
+        <forward name="ShowSmartChoiceSolution" path="/SmartChoice_Check.jsp" />
+        <forward name="ShowSmartMultipleProblemSolution" path="/SmartMultipleProblem_Check.jsp" />
+        <forward name="ShowFillBlankSolution" path="/FillBlank_Check.jsp" />
+        <forward name="ShowFillDoubleBlankSolution" path="/FillDoubleBlank_Check.jsp" />
+        <forward name="ShowFillQuadBlankSolution" path="/FillQuadBlank_Check.jsp" />
+        <forward name="ShowTermMatchSolution" path="/TermMatchCheck" />
+    </action> 
+
+    <!-- Update Scores For Those Students On Leave With Permission by Setting -2 = -1! -->
+    <action    path      = "/UpdateScore"
+               type      = "hello.UpdateScoreAction"
+               name      = "UpdateScoreForm"
+               scope     = "session"                        
+               validate  = "true"
+               input     = "/checkLogin.jsp"
+     >
+        <forward name="UpdateScoreDone" path="/UpdateScoreDone.jsp" />
+    </action>
+
+  
+    <!-- Store Scores! -->
+    <action    path      = "/Quit"
+               type      = "hello.QuitAction"
+               name      = "QuitForm"
+               scope     = "session"                        
+               validate  = "true"
+               input     = "/Problem_Check.jsp"
+     >
+        <forward name="QuitRegister" path="/logout_register.jsp" />
+    </action>
+
+   <!-- Store Smart Scores! -->
+    <action    path      = "/SmartQuit"
+               type      = "hello.SmartQuitAction"
+               name      = "SmartQuitForm"
+               scope     = "session"                        
+               validate  = "true"
+               input     = "/SmartProblem_Check.jsp"
+     >
+        <forward name="SmartQuitRegister" path="/logout_smart_register.jsp" />
+    </action>
+
+    <!-- Show All Scores! -->
+    <action    path      = "/Score"
+               type      = "hello.ScoreAction"
+               name      = "ScoreForm"
+               scope     = "session" 
+               validate  = "true"
+               input     = "/logout_register.jsp"
+     >
+        <forward name="ShowScore" path="/ShowScore.jsp" />
+        <forward name="ShowScoreBefore" path="/ShowScoreBefore.jsp" />
+        <forward name="ShowLogout" path="/logout.jsp" />
+    </action>
+
+  </action-mappings>  
+
+  <!-- ========== Message Resources Definitions =========================== -->
+
+  <message-resources parameter="hello.application"/>  
+   
+
+</struts-config>

@@ -1,0 +1,147 @@
+<%@ include file="taglibs.jsp" %>
+
+<html:html locale="true">
+  <head>   
+    <html:base/>
+  </head>
+  <body bgcolor="white"><p>    
+
+   <html:errors/><p> 
+
+    <logic:present name="problembean" scope="session">
+       <h2>
+         <bean:message key="hello.jsp.page.problem"/>
+         <bean:write name="problembean" property="id" /><p>
+         <bean:write name="problembean" property="type" /><p> 
+         <bean:write name="problembean" property="statement" /><p>
+         <bean:write name="problembean" property="choiceA" /><p>
+         <bean:write name="problembean" property="choiceB" /><p>
+         <bean:write name="problembean" property="choiceC" /><p>
+         <bean:write name="problembean" property="choiceD" /><p>
+       </h2>
+    </logic:present>  
+
+   
+    <%! HttpSession session = null; 
+        hello.SmartProblemBean _pb = null;
+        hello.PersonBean _pb2 = null;
+        String _hs = null;
+        String _hs_tf = null;
+        String _mhs = null;
+        String _hs_fb = null;
+        String _hs_fdb = null;
+
+        String _hs_low = null;
+        String _hs_middle = null;
+        String _hs_high = null;
+
+        String _hs_low_tf = null;
+        String _hs_middle_tf = null;
+        String _hs_high_tf = null;
+
+        String _hs_low_fb = null;
+        String _hs_middle_fb = null;
+        String _hs_high_fb = null;
+
+        String _hs_low_fdb = null;
+        String _hs_middle_fdb = null;
+        String _hs_high_fdb = null;
+
+        String _mhs_low = null;
+        String _mhs_middle = null;
+        String _mhs_high = null;
+    %>
+    <% session = request.getSession(true);     
+       _pb = (hello.SmartProblemBean)request.getAttribute(hello.Constants.PROBLEM_KEY);
+       _pb2 = (hello.PersonBean)request.getAttribute(hello.Constants.PERSON_KEY);
+       _hs = (String)request.getAttribute(hello.Constants.HASHSET_KEY);
+       _hs_tf = (String)request.getAttribute(hello.Constants.HASHSET_TF_KEY);
+       _mhs = (String)request.getAttribute(hello.Constants.HASHSET_M_KEY);
+       _hs_fb = (String)request.getAttribute(hello.Constants.HASHSET_FB_KEY);
+       _hs_fdb = (String)request.getAttribute(hello.Constants.HASHSET_FDB_KEY);
+    
+       _hs_low = (String)request.getAttribute(hello.Constants.HASHSET_LOW_KEY);
+       _hs_middle = (String)request.getAttribute(hello.Constants.HASHSET_MIDDLE_KEY);
+       _hs_high = (String)request.getAttribute(hello.Constants.HASHSET_HIGH_KEY);
+
+       _hs_low_tf = (String)request.getAttribute(hello.Constants.HASHSET_LOW_TF_KEY);
+       _hs_middle_tf = (String)request.getAttribute(hello.Constants.HASHSET_MIDDLE_TF_KEY);
+       _hs_high_tf = (String)request.getAttribute(hello.Constants.HASHSET_HIGH_TF_KEY);
+
+       _hs_low_fb = (String)request.getAttribute(hello.Constants.HASHSET_LOW_FB_KEY);
+       _hs_middle_fb = (String)request.getAttribute(hello.Constants.HASHSET_MIDDLE_FB_KEY);
+       _hs_high_fb = (String)request.getAttribute(hello.Constants.HASHSET_HIGH_FB_KEY);
+
+       _hs_low_fdb = (String)request.getAttribute(hello.Constants.HASHSET_LOW_FDB_KEY);
+       _hs_middle_fdb = (String)request.getAttribute(hello.Constants.HASHSET_MIDDLE_FDB_KEY);
+       _hs_high_fdb = (String)request.getAttribute(hello.Constants.HASHSET_HIGH_FDB_KEY);
+
+       _mhs_low = (String)request.getAttribute(hello.Constants.HASHSET_LOW_M_KEY);
+       _mhs_middle = (String)request.getAttribute(hello.Constants.HASHSET_MIDDLE_M_KEY);
+       _mhs_high = (String)request.getAttribute(hello.Constants.HASHSET_HIGH_M_KEY);
+    %>
+
+    
+
+    <html:form action="/SmartRandomCheck.do" >
+
+      <bean:message key="hello.jsp.prompt.problem"/>
+      <html:text property="inputAnswer" size="16" maxlength="16"/><br>
+      <html:hidden property="correctAnswer" value="<%= _pb.getCorrectChoice()%>"/>
+      <html:hidden property="solution" value="<%= _pb.getSolution()%>"/>
+      <html:hidden property="answeredProblems" value="<%= (new Integer(_pb2.getAnsweredProblems()).toString())%>"/>
+      <html:hidden property="correctAnswers" value="<%= (new Integer(_pb2.getCorrectAnswers()).toString())%>"/>
+      <html:hidden property="totalScore" value="<%= (new Integer(_pb2.getTotalScore()).toString())%>"/>
+      <html:hidden property="correctAnswers_low" value="<%= (new Integer(_pb2.getCorrectAnswers_low()).toString())%>"/>
+      <html:hidden property="answeredProblems_low" value="<%= (new Integer(_pb2.getAnsweredProblems_low()).toString())%>"/>
+ <html:hidden property="correctAnswers_middle" value="<%= (new Integer(_pb2.getCorrectAnswers_middle()).toString())%>"/>
+ <html:hidden property="answeredProblems_middle" value="<%= (new Integer(_pb2.getAnsweredProblems_middle()).toString())%>"/>
+     <html:hidden property="correctAnswers_high" value="<%= (new Integer(_pb2.getCorrectAnswers_high()).toString())%>"/>
+     <html:hidden property="answeredProblems_high" value="<%= (new Integer(_pb2.getAnsweredProblems_high()).toString())%>"/>
+      <html:hidden property="answeredHashSet" value="<%= _hs%>"/>
+      <html:hidden property="answeredHashSet_tf" value="<%= _hs_tf%>"/>
+      <html:hidden property="answered_M_HashSet" value="<%= _mhs%>"/>
+      <html:hidden property="answeredHashSet_fb" value="<%= _hs_fb%>"/>
+      <html:hidden property="answeredHashSet_fdb" value="<%= _hs_fdb%>"/>
+      <html:hidden property="userName" value="<%= _pb2.getUserName()%>"/>
+      <html:hidden property="passWord" value="<%= _pb2.getPassWord()%>"/>
+      <html:hidden property="trueName" value="<%= _pb2.getTrueName()%>"/>
+      <html:hidden property="lastType" value="<%= _pb2.getLastType()%>"/>
+      <html:hidden property="thisType" value="<%= _pb2.getThisType()%>"/>
+      <html:hidden property="continueRight" value="<%= (new Integer(_pb2.getContinueRight()).toString())%>"/>
+      <html:hidden property="continueWrong" value="<%= (new Integer(_pb2.getContinueWrong()).toString())%>"/>
+      <html:hidden property="neverHigh" value="<%= (new Boolean(_pb2.getNeverHigh()).toString())%>"/>
+      <html:hidden property="times" value="<%= _pb2.getTimes()%>"/>
+      <html:hidden property="randomNumber" value="<%= _pb2.getRandomNumber()%>"/>
+
+      <html:hidden property="hashSet_low" value="<%= _hs_low %>"/>
+      <html:hidden property="hashSet_middle" value="<%= _hs_middle %>"/>
+      <html:hidden property="hashSet_high" value="<%= _hs_high %>"/>
+
+      <html:hidden property="hashSet_low_tf" value="<%= _hs_low_tf %>"/>
+      <html:hidden property="hashSet_middle_tf" value="<%= _hs_middle_tf %>"/>
+      <html:hidden property="hashSet_high_tf" value="<%= _hs_high_tf %>"/>
+
+      <html:hidden property="hashSet_low_fb" value="<%= _hs_low_fb %>"/>
+      <html:hidden property="hashSet_middle_fb" value="<%= _hs_middle_fb %>"/>
+      <html:hidden property="hashSet_high_fb" value="<%= _hs_high_fb %>"/>
+
+      <html:hidden property="hashSet_low_fdb" value="<%= _hs_low_fdb %>"/>
+      <html:hidden property="hashSet_middle_fdb" value="<%= _hs_middle_fdb %>"/>
+      <html:hidden property="hashSet_high_fdb" value="<%= _hs_high_fdb %>"/>
+
+      <html:hidden property="hashSet_low_m" value="<%= _mhs_low %>"/>
+      <html:hidden property="hashSet_middle_m" value="<%= _mhs_middle %>"/>
+      <html:hidden property="hashSet_high_m" value="<%= _mhs_high %>"/>
+
+      <!-- PAUSE HERE  -->
+
+      <html:submit property="submit" value="Submit"/>
+      <html:reset/>
+
+    </html:form><br>
+    
+    <html:img page="/struts-power.gif" alt="Powered by Struts"/>
+   
+  </body>
+</html:html>

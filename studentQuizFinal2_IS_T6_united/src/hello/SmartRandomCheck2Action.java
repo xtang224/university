@@ -1,0 +1,675 @@
+package hello;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
+
+import java.util.*;
+import java.sql.*;
+import java.io.*;
+import javax.sql.*;
+
+import util.*;
+
+public final class SmartRandomCheck2Action extends Action {
+
+    /**
+     * Process the specified HTTP request, and create the corresponding HTTP
+     * response (or forward to another web component that will create it).
+     * Return an <code>ActionForward</code> instance describing where and how
+     * control should be forwarded, or <code>null</code> if the response has
+     * already been completed.
+     */
+    public ActionForward execute(ActionMapping mapping,
+                                 ActionForm form,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response)
+    throws Exception {
+
+        // These "messages" come from the ApplicationResources.properties file
+        MessageResources messages = getResources(request);
+
+        /*
+         * Validate the request parameters specified by the user
+         * Note: Basic field validation done in HelloForm.java
+         *       Business logic validation done in HelloAction.java
+         */
+        ActionMessages errors = new ActionMessages();
+        HttpSession session = request.getSession(true);
+
+        String strRandomNumber = (String)((SmartRandomCheck2Form) form).getRandomNumber();
+        int randomNumber = Integer.parseInt(strRandomNumber);
+        String inputAnswer = (String)((SmartRandomCheck2Form) form).getInputAnswer();
+        if (inputAnswer != null)
+           inputAnswer = inputAnswer.trim();
+        else
+           inputAnswer = "";        
+        String correctChoice = null;
+        correctChoice = (String)((SmartRandomCheck2Form) form).getCorrectAnswer();
+        String solution = null;
+        solution = (String)((SmartRandomCheck2Form) form).getSolution();
+        String source = (String)((SmartRandomCheck2Form) form).getSource();
+        SmartProblemBean pb = new SmartProblemBean();
+        SmartChoiceBean cb = new SmartChoiceBean();
+        SmartMultipleProblemBean mpb = new SmartMultipleProblemBean();    
+        FillBlankBean fbb = new FillBlankBean();
+        FillDoubleBlankBean fdbb = new FillDoubleBlankBean();
+        FillQuadBlankBean fqbb = new FillQuadBlankBean();
+        TermMatchBean tmb = new TermMatchBean();
+
+        String statement_1st = null;
+        String statement_2nd = null;
+        String statement_3rd = null;
+        String statement_4th = null;
+        String statement_5th = null;
+        switch (randomNumber){
+           case 0:
+              /*
+              pb.setCorrectChoice(correctChoice);
+              pb.setSolution(solution);
+              pb.setSource(source);
+              */
+              pb.setCorrectChoice("");
+              pb.setSolution("");
+              pb.setSource(source);
+              request.setAttribute( Constants.PROBLEM_KEY, pb); 
+              session.setAttribute( Constants.PROBLEM_KEY, pb); 
+              break;
+           case 1:
+              cb.setChoice("");
+              cb.setSolution("");
+              cb.setSource(source);
+              request.setAttribute( Constants.CHOICE_KEY, cb); 
+              session.setAttribute( Constants.CHOICE_KEY, cb);  
+              break;
+           case 2:
+              mpb.setCorrectChoice("");
+              mpb.setSolution("");
+              mpb.setSource(source);
+              request.setAttribute( Constants.MULTIPLEPROBLEM_KEY, mpb); 
+              session.setAttribute( Constants.MULTIPLEPROBLEM_KEY, mpb); 
+              break;
+           case 3:
+              statement_1st = (String)((SmartRandomCheck2Form) form).getStatement_1st();
+              statement_2nd = (String)((SmartRandomCheck2Form) form).getStatement_2nd();
+              fbb.setStatement_1st(statement_1st);
+              fbb.setStatement_2nd(statement_2nd);
+              fbb.setSolution("");
+              fbb.setSource(source);
+              request.setAttribute( Constants.FILLBLANK_KEY, fbb); 
+              session.setAttribute( Constants.FILLBLANK_KEY, fbb);  
+              break;
+           case 4:
+              statement_1st = (String)((SmartRandomCheck2Form) form).getStatement_1st();
+              statement_2nd = (String)((SmartRandomCheck2Form) form).getStatement_2nd();
+              statement_3rd = (String)((SmartRandomCheck2Form) form).getStatement_3rd();
+              fdbb.setStatement_1st(statement_1st);
+              fdbb.setStatement_2nd(statement_2nd);              
+              fdbb.setStatement_3rd(statement_3rd);
+              fdbb.setSource(source);
+              request.setAttribute( Constants.FILLDOUBLEBLANK_KEY, fdbb); 
+              session.setAttribute( Constants.FILLDOUBLEBLANK_KEY, fdbb);  
+              break;
+           case 5:
+              tmb.setCorrectChoice("");
+              tmb.setSolution("");
+              tmb.setSource(source);
+              request.setAttribute( Constants.TERMMATCH_KEY, tmb); 
+              session.setAttribute( Constants.TERMMATCH_KEY, tmb);
+              break; 
+           case 6:
+              statement_1st = (String)((SmartRandomCheckForm) form).getStatement_1st();
+              statement_2nd = (String)((SmartRandomCheckForm) form).getStatement_2nd();
+              statement_3rd = (String)((SmartRandomCheckForm) form).getStatement_3rd();
+              statement_4th = (String)((SmartRandomCheckForm) form).getStatement_4th();
+              statement_5th = (String)((SmartRandomCheckForm) form).getStatement_5th();
+              fqbb.setStatement_1st(statement_1st);
+              fqbb.setStatement_2nd(statement_2nd);              
+              fqbb.setStatement_3rd(statement_3rd);
+              fqbb.setStatement_4th(statement_4th);
+              fqbb.setStatement_5th(statement_5th);
+              fqbb.setSource(source);
+              request.setAttribute( Constants.FILLQUADBLANK_KEY, fqbb); 
+              session.setAttribute( Constants.FILLQUADBLANK_KEY, fqbb);  
+              break; 
+           default:
+              break;
+        }       
+        
+        /*
+         * Having received and validated the data submitted
+         * from the View, we now update the model
+         */        
+        
+        //pb.saveToPersistentStore();
+
+        /*
+         * If there was a choice of View components that depended on the model
+         * (or some other) status, we'd make the decision here as to which
+         * to display. In this case, there is only one View component.
+         *
+         * We pass data to the View components by setting them as attributes
+         * in the page, request, session or servlet context. In this case, the
+         * most appropriate scoping is the "request" context since the data
+         * will not be neaded after the View is generated.
+         *
+         * Constants.PERSON_KEY provides a key accessible by both the
+         * Controller component (i.e. this class) and the View component
+         * (i.e. the jsp file we forward to).
+         */    
+        //PersonBean pb2 = new PersonBean();
+        PersonBean pb2 = new PersonBean();
+        String userName = (String)((SmartRandomCheck2Form) form).getUserName();
+        String passWord = (String)((SmartRandomCheck2Form) form).getPassWord();
+        String trueName = (String)((SmartRandomCheck2Form) form).getTrueName();
+        pb2.setUserName(userName);
+        pb2.setPassWord(passWord);  
+        pb2.setTrueName((String)StringSetTransfer.nameMap.get(userName));
+        pb2.setInputAnswer(inputAnswer);      
+
+        String times = (String)((SmartRandomCheck2Form) form).getTimes();
+        pb2.setTimes(times);
+
+        /*
+        String memberExist = (String)(StringSetTransfer.memberMap.get(userName+"_memberExist"));
+        if (memberExist == null){
+           memberExist = (String)((SmartRandomCheck2Form) form).getMemberExist(); 
+           if (memberExist == null)   System.out.println("memberExist is null, something is wrong.");
+        }   
+        pb2.setMemberExist(memberExist);
+        System.out.println("inside SmartRandomCheck2Action.java, pb2.getMemberExist() = " + pb2.getMemberExist());
+        */
+        //get the value of correct answers set 
+        /*
+        HashSet hs_correct = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_correct");
+        HashSet hs_tf_correct = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_tf_correct");
+        HashSet hs_fb_correct = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_fb_correct"); 
+        HashSet hs_fdb_correct = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_fdb_correct");
+        HashSet mhs_correct = (HashSet)StringSetTransfer.recordMap.get(userName+"_mhs_correct");
+        HashSet hs_tm_correct = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_tm_correct");
+
+        HashSet hs = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs");
+        HashSet hs_tf = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_tf");
+        HashSet hs_fb = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_fb"); 
+        HashSet hs_fdb = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_fdb");
+        HashSet mhs = (HashSet)StringSetTransfer.recordMap.get(userName+"_mhs");
+        HashSet hs_tm = (HashSet)StringSetTransfer.recordMap.get(userName+"_hs_tm");
+        */
+        String answeredHashSetStr = (String)((SmartRandomCheck2Form) form).getAnsweredHashSet();
+        HashSet hs = StringSetTransfer.stringToSet(answeredHashSetStr);
+        String answeredHashSetStr_tf = (String)((SmartRandomCheck2Form) form).getAnsweredHashSet_tf();
+        HashSet hs_tf = StringSetTransfer.stringToSet(answeredHashSetStr_tf);
+        String answeredHashSetStr_m = (String)((SmartRandomCheck2Form) form).getAnswered_M_HashSet();
+        HashSet mhs = StringSetTransfer.stringToSet(answeredHashSetStr_m);
+        String answeredHashSetStr_fb = (String)((SmartRandomCheck2Form) form).getAnsweredHashSet_fb();
+        HashSet hs_fb = StringSetTransfer.stringToSet(answeredHashSetStr_fb);
+        String answeredHashSetStr_fdb = (String)((SmartRandomCheck2Form) form).getAnsweredHashSet_fdb();
+        HashSet hs_fdb = StringSetTransfer.stringToSet(answeredHashSetStr_fdb);
+        String answeredHashSetStr_fqb = (String)((SmartRandomCheck2Form) form).getAnsweredHashSet_fqb();
+        HashSet hs_fqb = StringSetTransfer.stringToSet(answeredHashSetStr_fqb);
+        String answeredHashSetStr_tm = (String)((SmartRandomCheck2Form) form).getAnsweredHashSet_tm();
+        HashSet hs_tm = StringSetTransfer.stringToSet(answeredHashSetStr_tm);
+
+        String answeredProblems = (String)((SmartRandomCheck2Form) form).getAnsweredProblems();
+        String correctAnswers = (String)((SmartRandomCheck2Form) form).getCorrectAnswers();
+        int intAnsweredProblems = Integer.parseInt(answeredProblems);
+        int intCorrectAnswers = Integer.parseInt(correctAnswers);         
+       
+        String totalScore = (String)((SmartRandomCheck2Form) form).getTotalScore();
+        String correctAnswers_low = (String)((SmartRandomCheck2Form) form).getCorrectAnswers_low();
+        String answeredProblems_low = (String)((SmartRandomCheck2Form) form).getAnsweredProblems_low();
+        String correctAnswers_middle = (String)((SmartRandomCheck2Form) form).getCorrectAnswers_middle();
+        String answeredProblems_middle = (String)((SmartRandomCheck2Form) form).getAnsweredProblems_middle();
+        String correctAnswers_high = (String)((SmartRandomCheck2Form) form).getCorrectAnswers_high();
+        String answeredProblems_high = (String)((SmartRandomCheck2Form) form).getAnsweredProblems_high();
+        double dbTotalScore = Double.parseDouble(totalScore);
+        int intCorrectAnswers_low = Integer.parseInt(correctAnswers_low);
+        int intAnsweredProblems_low = Integer.parseInt(answeredProblems_low);    
+        int intCorrectAnswers_middle = Integer.parseInt(correctAnswers_middle);
+        int intAnsweredProblems_middle = Integer.parseInt(answeredProblems_middle);
+        int intCorrectAnswers_high = Integer.parseInt(correctAnswers_high);
+        int intAnsweredProblems_high = Integer.parseInt(answeredProblems_high);
+        boolean lastCorrect = false;
+        String lastType = (String)((SmartRandomCheck2Form) form).getLastType();
+
+        javax.sql.DataSource dataSource = null;
+        java.sql.Connection myConnection = null;
+        Statement s = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        int intCurrentProblemId = 0;
+        String strCurrentProblemId = null;
+        strCurrentProblemId = (String)((SmartRandomCheck2Form) form).getId();
+        intCurrentProblemId = Integer.parseInt(strCurrentProblemId);
+        String inputAnswer_lowerCase = inputAnswer.toLowerCase();
+        String correctChoice_lowerCase = correctChoice.toLowerCase();        
+        switch (randomNumber){
+           case 0: //questions2
+              hs.remove(new Integer(intCurrentProblemId));              
+              //intAnsweredProblems_low --;
+              //intAnsweredProblems --;
+              /*
+              if (correctChoice_lowerCase.equals(inputAnswer_lowerCase)){
+                 intCorrectAnswers ++;
+                 lastCorrect = true;  
+                 hs_correct.add(new Integer(intCurrentProblemId)); 
+              }
+
+              */
+              //we want to delete record from questions2              
+              try{
+                 dataSource = getDataSource(request);
+                 myConnection = dataSource.getConnection();
+
+                 stmt = myConnection.prepareStatement("delete from usedQuestions2 where studentNo=? and id=?");
+                 stmt.clearParameters();                 
+                 stmt.setString(1, userName);   
+                 stmt.setInt(2, intCurrentProblemId);                
+                 stmt.executeUpdate(); 
+              }catch (SQLException sqle) {
+                 getServlet().log("Connection.process", sqle);
+              } finally {           
+                 try {
+                    if (rs != null) rs.close();
+                    if (s != null) s.close();
+                    if (stmt != null) stmt.close();
+                    if (myConnection != null) myConnection.close();
+                 } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                 }
+              }
+              break;
+           case 1: //choices2
+              hs_tf.remove(new Integer(intCurrentProblemId));              
+              //intAnsweredProblems_low --;
+              //intAnsweredProblems --;
+              /*
+              if (correctChoice_lowerCase.equals(inputAnswer_lowerCase)){
+                 intCorrectAnswers ++;
+                 lastCorrect = true;  
+                 hs_tf_correct.add(new Integer(intCurrentProblemId));
+              }
+
+              */
+              //we want to delete record from choices2             
+              try{
+                 dataSource = getDataSource(request);
+                 myConnection = dataSource.getConnection();
+
+                 stmt = myConnection.prepareStatement("delete from usedChoices2 where studentNo=? and id=?");
+                 stmt.clearParameters();
+                 
+                 stmt.setString(1, userName);   
+                 stmt.setInt(2, intCurrentProblemId); 
+                 stmt.executeUpdate(); 
+              }catch (SQLException sqle) {
+                 getServlet().log("Connection.process", sqle);
+              } finally {           
+                 try {
+                    if (rs != null) rs.close();
+                    if (s != null) s.close();
+                    if (stmt != null) stmt.close();
+                    if (myConnection != null) myConnection.close();
+                 } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                 }
+              }
+              break;
+           case 2: //multiplequestions2 
+              mhs.remove(new Integer(intCurrentProblemId));              
+              //intAnsweredProblems_high --;
+              //intAnsweredProblems --;
+              /*
+              char[] inputAnswer_lowerCase_Arr = inputAnswer_lowerCase.toCharArray();
+              Arrays.sort(inputAnswer_lowerCase_Arr);
+              String temp = new String(inputAnswer_lowerCase_Arr);
+              //assuming in multiple choices, correctChoice takes the correct order
+              if (temp.equals(correctChoice_lowerCase)){
+                 intCorrectAnswers ++;
+                 lastCorrect = true;   
+                 mhs_correct.add(new Integer(intCurrentProblemId));                 
+              }
+
+              */ 
+              //delete record from multipleQuestions2              
+              try{
+                 dataSource = getDataSource(request);
+                 myConnection = dataSource.getConnection();
+
+                 stmt = myConnection.prepareStatement("delete from usedMultipleQuestions2 where studentNo=? and id=?");
+                 stmt.clearParameters();
+                 
+                 stmt.setString(1, userName);       
+                 stmt.setInt(2, intCurrentProblemId);                
+                 stmt.executeUpdate(); 
+              }catch (SQLException sqle) {
+                 getServlet().log("Connection.process", sqle);
+              } finally {           
+                 try {
+                    if (rs != null) rs.close();
+                    if (s != null) s.close();
+                    if (stmt != null) stmt.close();
+                    if (myConnection != null) myConnection.close();
+                 } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                 }
+              }
+              break;              
+           case 3: //fillblank2
+              hs_fb.remove(new Integer(intCurrentProblemId));              
+              //intAnsweredProblems_middle --;
+              //intAnsweredProblems --;           
+              /*
+              int indexOfAnswer = correctChoice_lowerCase.indexOf(inputAnswer_lowerCase);
+              getServlet().log("correctChoice_lowerCase = " + correctChoice_lowerCase);
+              getServlet().log("inputAnswer_lowerCase = " + inputAnswer_lowerCase);
+              getServlet().log("indexOfAnswer = " + indexOfAnswer);
+         if ((!inputAnswer_lowerCase.equals("")) && indexOfAnswer >=0 && indexOfAnswer < correctChoice_lowerCase.length()){
+                 intCorrectAnswers ++;
+                 lastCorrect = true;  
+              }
+              */
+
+              /*
+              String[] correctChoices = correctChoice_lowerCase.split("/");
+              for (int i = 0; i < correctChoices.length; i++){
+                 System.out.println("correctChoices[" + i + "]=" + correctChoices[i]);
+                 if ((!inputAnswer_lowerCase.equals("")) && inputAnswer_lowerCase.equals(correctChoices[i])){
+                    intCorrectAnswers ++;
+                    lastCorrect = true;
+                    hs_fb_correct.add(new Integer(intCurrentProblemId));   
+                    break;
+                 }
+              }
+ 
+             */
+              //delete record from fillblank2              
+              getServlet().log("In fillBlank2, intCurrentProblemId = " + intCurrentProblemId);
+              try{
+                 dataSource = getDataSource(request);
+                 myConnection = dataSource.getConnection();
+
+                 stmt = myConnection.prepareStatement("delete from usedFillBlank2 where studentNo=? and id=?");
+                 stmt.clearParameters();
+                 
+                 stmt.setString(1, userName);       
+                 stmt.setInt(2, intCurrentProblemId);                
+                 stmt.executeUpdate();              
+              }catch (SQLException sqle) {
+                 getServlet().log("Connection.process", sqle);
+              } finally {           
+                 try {
+                    if (rs != null) rs.close();
+                    if (s != null) s.close();
+                    if (stmt != null) stmt.close();
+                    if (myConnection != null) myConnection.close();
+                 } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                 }
+              }
+              break;
+           case 4: //filldoubleblanks2
+              hs_fdb.remove(new Integer(intCurrentProblemId));              
+              
+              //delete record from fillDoubleblanks2
+              getServlet().log("In fillDoubleBlanks2, intCurrentProblemId = " + intCurrentProblemId);
+              try{
+                 dataSource = getDataSource(request);
+                 myConnection = dataSource.getConnection();
+
+                 stmt = myConnection.prepareStatement("delete from usedFillDoubleBlanks2 where studentNo=? and id=?");
+                 stmt.clearParameters();
+                 
+                 stmt.setString(1, userName);       
+                 stmt.setInt(2, intCurrentProblemId);                
+                 stmt.executeUpdate();
+              }catch (SQLException sqle) {
+                 getServlet().log("Connection.process", sqle);
+              } finally {           
+                 try {
+                    if (rs != null) rs.close();
+                    if (s != null) s.close();
+                    if (stmt != null) stmt.close();
+                    if (myConnection != null) myConnection.close();
+                 } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                 }
+              }
+              break;
+           case 5: //termMatch2
+              hs_tm.remove(new Integer(intCurrentProblemId));              
+              //intAnsweredProblems_middle --;
+              //intAnsweredProblems --;
+              /*
+              if (correctChoice_lowerCase.equals(inputAnswer_lowerCase)){
+                 intCorrectAnswers ++;
+                 lastCorrect = true;  
+                 hs_tm_correct.add(new Integer(intCurrentProblemId)); 
+              }
+
+              */
+              //we want to delete record from termMatch2              
+              try{
+                 dataSource = getDataSource(request);
+                 myConnection = dataSource.getConnection();
+
+                 stmt = myConnection.prepareStatement("delete from usedTermMatch2 where studentNo=? and id=?");
+                 stmt.clearParameters();
+                 
+                 stmt.setString(1, userName);   
+                 stmt.setInt(2, intCurrentProblemId);                
+                 stmt.executeUpdate(); 
+              }catch (SQLException sqle) {
+                 getServlet().log("Connection.process", sqle);
+              } finally {           
+                 try {
+                    if (rs != null) rs.close();
+                    if (s != null) s.close();
+                    if (stmt != null) stmt.close();
+                    if (myConnection != null) myConnection.close();
+                 } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                 }
+              }
+              break;
+           case 6: //fillquadblanks2
+              hs_fqb.remove(new Integer(intCurrentProblemId));              
+              
+              //delete record from fillDoubleblanks2
+              System.out.println("In fillQuadBlanks2, intCurrentProblemId = " + intCurrentProblemId);
+              try{
+                 dataSource = getDataSource(request);
+                 myConnection = dataSource.getConnection();
+
+                 stmt = myConnection.prepareStatement("delete from usedFillQuadBlanks2 where studentNo=? and problemId=?");
+                 stmt.clearParameters();
+                 
+                 stmt.setString(1, userName);       
+                 stmt.setInt(2, intCurrentProblemId);                
+                 stmt.executeUpdate();
+              }catch (SQLException sqle) {
+                 getServlet().log("Connection.process", sqle);
+              } finally {           
+                 try {
+                    if (rs != null) rs.close();
+                    if (s != null) s.close();
+                    if (stmt != null) stmt.close();
+                    if (myConnection != null) myConnection.close();
+                 } catch (SQLException e) {
+                    getServlet().log("Connection.close", e);
+                 }
+              }
+              break;
+           default:
+              break;
+        }
+
+        
+        //StringSetTransfer stringSetTransfer = new StringSetTransfer(userName);
+        /*
+        double[] result =  StringSetTransfer.rate(lastCorrect, lastType.charAt(0));         
+        dbTotalScore += result[0];        
+        //intAnsweredProblems_low += (int)result[1];
+        intCorrectAnswers_low += (int)result[2];
+        //intAnsweredProblems_middle += (int)result[3];
+        intCorrectAnswers_middle += (int)result[4]; 
+        //intAnsweredProblems_high += (int)result[5];       
+        intCorrectAnswers_high += (int)result[6];        
+
+        //intAnsweredProblems ++;
+        */ 
+
+        String strLastCorrect = (String)((SmartRandomCheck2Form) form).getLastCorrect();
+        lastCorrect = Boolean.parseBoolean(strLastCorrect);
+        pb2.setLastCorrect(lastCorrect);
+        pb2.setAnsweredProblems(intAnsweredProblems);        
+        pb2.setCorrectAnswers(intCorrectAnswers);
+        
+        pb2.setTotalScore(dbTotalScore);
+        pb2.setCorrectAnswers_low(intCorrectAnswers_low);
+        pb2.setAnsweredProblems_low(intAnsweredProblems_low);
+        pb2.setCorrectAnswers_middle(intCorrectAnswers_middle);
+        pb2.setAnsweredProblems_middle(intAnsweredProblems_middle);
+        pb2.setCorrectAnswers_high(intCorrectAnswers_high);
+        pb2.setAnsweredProblems_high(intAnsweredProblems_high);        
+        
+        String thisType = (String)((SmartRandomCheck2Form) form).getThisType();
+        pb2.setLastType(lastType);
+        pb2.setThisType(thisType);
+        //String continueRight = (String)((SmartRandomCheck2Form) form).getContinueRight();
+        //String continueWrong = (String)((SmartRandomCheck2Form) form).getContinueWrong();
+        //int intContinueRight = Integer.parseInt(continueRight);
+        //int intContinueWrong = Integer.parseInt(continueWrong);        
+        //pb2.setContinueRight(intContinueRight);
+        //pb2.setContinueWrong(intContinueWrong);
+
+        //String neverHigh = (String)((SmartRandomCheck2Form) form).getNeverHigh();
+        //boolean boolNeverHigh = Boolean.parseBoolean(neverHigh);
+        //pb2.setNeverHigh(boolNeverHigh);
+
+        String planStatus = (String)((SmartRandomCheck2Form) form).getPlanStatus();
+        pb2.setPlanStatus(planStatus);
+               
+        //now get the remainSeconds
+        //String strRemainSeconds = (String)(StringSetTransfer.memberMap.get(userName+"_remainSeconds"));
+        String strRemainSeconds = null;
+        int remainSeconds = 0;
+        if (strRemainSeconds == null){               
+           try{
+              dataSource = getDataSource(request);
+              myConnection = dataSource.getConnection();
+              //Class.forName("org.hsqldb.jdbcDriver");
+              //myConnection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");
+              s = myConnection.createStatement();
+              rs = s.executeQuery("select remainSeconds from student_time where studentNo='" + userName + "'");
+              remainSeconds = 0;
+              while (rs.next()){
+                 remainSeconds = rs.getInt("remainSeconds");              
+              }              
+
+              if (pb2.getPlanStatus().equals("finished")){
+                 pb2.setPlanStatus("not finished");
+                 s = myConnection.createStatement();
+                 s.executeUpdate("update student_score set planStatus='not finished' where studentNo = '" + userName + "'");
+              }
+           }catch (SQLException ex){
+              getServlet().log("Inside RandomCheckAction.java, process.", ex);
+           }finally{
+              try{
+                 if (rs != null) rs.close();
+                 if (s != null) s.close();
+                 if (myConnection != null) myConnection.close();
+              }catch (SQLException e){
+                 getServlet().log("Inside RandomCheckAction.java, closing.", e);
+              }
+           }
+        }else{
+           remainSeconds = Integer.parseInt(strRemainSeconds);
+        }
+        pb2.setRemainSeconds(remainSeconds);
+        pb2.setRemainSeconds(1800); //now we want this demonstration program not to end
+
+        session.setAttribute( Constants.PERSON_KEY, pb2); 
+        request.setAttribute( Constants.PERSON_KEY, pb2);        
+        
+        System.out.println("SmartRandomCheck2Action, hs string is " + answeredHashSetStr);
+        System.out.println("SmartRandomCheck2Action, hs_tf str is " + answeredHashSetStr_tf);
+        System.out.println("SmartRandomCheck2Action, mhs str is " + answeredHashSetStr_m);   
+        System.out.println("SmartRandomCheck2Action, hs_fb str is " + answeredHashSetStr_fb); 
+        System.out.println("SmartRandomCheck2Action, hs_fdb str is " + answeredHashSetStr_fdb);     
+        System.out.println("SmartRandomCheck2Action, hs_tm str is " + answeredHashSetStr_tm);     
+        
+        session.setAttribute( Constants.HASHSET_KEY, StringSetTransfer.setToString(hs));   
+        session.setAttribute( Constants.HASHSET_TF_KEY, StringSetTransfer.setToString(hs_tf));
+        session.setAttribute( Constants.HASHSET_M_KEY, StringSetTransfer.setToString(mhs)); 
+        session.setAttribute( Constants.HASHSET_FB_KEY, StringSetTransfer.setToString(hs_fb));
+        session.setAttribute( Constants.HASHSET_FDB_KEY, StringSetTransfer.setToString(hs_fdb));
+        session.setAttribute( Constants.HASHSET_FQB_KEY, StringSetTransfer.setToString(hs_fqb));
+        session.setAttribute( Constants.HASHSET_TM_KEY, StringSetTransfer.setToString(hs_tm));
+        request.setAttribute( Constants.HASHSET_KEY, StringSetTransfer.setToString(hs));   
+        request.setAttribute( Constants.HASHSET_TF_KEY, StringSetTransfer.setToString(hs_tf));
+        request.setAttribute( Constants.HASHSET_M_KEY, StringSetTransfer.setToString(mhs)); 
+        request.setAttribute( Constants.HASHSET_FB_KEY, StringSetTransfer.setToString(hs_fb)); 
+        request.setAttribute( Constants.HASHSET_FDB_KEY, StringSetTransfer.setToString(hs_fdb)); 
+        request.setAttribute( Constants.HASHSET_FQB_KEY, StringSetTransfer.setToString(hs_fqb)); 
+        request.setAttribute( Constants.HASHSET_TM_KEY, StringSetTransfer.setToString(hs_tm));
+
+        //put the records of all correct problems in the StringSetTransfer.recordMap
+        /*
+        StringSetTransfer.recordMap.put(userName+"_hs_correct", hs_correct);
+        StringSetTransfer.recordMap.put(userName+"_hs_tf_correct", hs_tf_correct);
+        StringSetTransfer.recordMap.put(userName+"_hs_fb_correct", hs_fb_correct);
+        StringSetTransfer.recordMap.put(userName+"_hs_fdb_correct", hs_fdb_correct); 
+        StringSetTransfer.recordMap.put(userName+"_mhs_correct", mhs_correct);
+        StringSetTransfer.recordMap.put(userName+"_hs_tm_correct", hs_tm_correct);
+
+        //put the records of all problems in the StringSetTransfer.recordMap
+        StringSetTransfer.recordMap.put(userName+"_hs", hs);
+        StringSetTransfer.recordMap.put(userName+"_hs_tf", hs_tf);
+        StringSetTransfer.recordMap.put(userName+"_hs_fb", hs_fb);
+        StringSetTransfer.recordMap.put(userName+"_hs_fdb", hs_fdb);
+        StringSetTransfer.recordMap.put(userName+"_mhs", mhs);
+        StringSetTransfer.recordMap.put(userName+"_hs_tm", hs_tm);
+
+        StringSetTransfer.recordMap.put(userName+"_hs2", hs2);
+        StringSetTransfer.recordMap.put(userName+"_hs_tf2", hs_tf2);
+        StringSetTransfer.recordMap.put(userName+"_hs_fb2", hs_fb2);
+        StringSetTransfer.recordMap.put(userName+"_hs_fdb2", hs_fdb2);
+        StringSetTransfer.recordMap.put(userName+"_mhs2", mhs2);
+        StringSetTransfer.recordMap.put(userName+"_hs_tm2", hs_tm2);
+        */
+
+        // Forward control to the specified success URI
+        switch (randomNumber){
+           case 0:
+              return (mapping.findForward("ShowSmartProblemSolution"));   
+           case 1:
+              return (mapping.findForward("ShowSmartChoiceSolution"));   
+           case 2:
+              return (mapping.findForward("ShowSmartMultipleProblemSolution")); 
+           case 3:
+              return (mapping.findForward("ShowFillBlankSolution")); 
+           case 4:
+              return (mapping.findForward("ShowFillDoubleBlankSolution"));           
+           case 5:
+              return (mapping.findForward("ShowTermMatchSolution"));
+           case 6:
+              return (mapping.findForward("ShowFillQuadBlankSolution"));
+           default:
+              break;
+        } 
+
+        return (mapping.findForward("ShowSmartProblemSolution"));        
+    }
+}

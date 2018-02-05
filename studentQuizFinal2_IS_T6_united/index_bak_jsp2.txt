@@ -1,0 +1,39 @@
+<%@ include file="taglibs.jsp" %>
+<%@page pageEncoding="GB18030"%>
+
+<html:html locale="true">
+  <head>
+    <title><bean:message key="hello.jsp.title"/></title>
+    <html:base/>
+  </head>
+  <body bgcolor="white"><p>
+
+    <h2><bean:message key="hello.jsp.page.heading"/></h2><p>
+
+   <html:errors/><p> 
+
+    <logic:present name="questionbean" scope="request">
+       <h2>
+         <bean:message key="hello.jsp.page.hello"/>
+         <bean:write name="questionbean" property="statement" /><p>
+         <bean:write name="questionbean" property="choiceA" /><p>
+         <bean:write name="questionbean" property="choiceB" /><p>
+         <bean:write name="questionbean" property="choiceC" /><p>
+         <bean:write name="questionbean" property="choiceD" /><p>
+       </h2>
+    </logic:present>
+
+    <html:form action="/Problem.do?first=true" >
+
+      <bean:message key="hello.jsp.prompt.person"/>
+      <br>
+
+      <html:submit property="submit" value="Submit"/>
+      <html:reset/>
+
+    </html:form><br>
+
+    <html:img page="/struts-power.gif" alt="Powered by Struts"/>
+
+  </body>
+</html:html>

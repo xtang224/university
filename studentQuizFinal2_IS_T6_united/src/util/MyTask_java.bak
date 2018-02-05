@@ -1,0 +1,55 @@
+package util;
+
+import java.util.*;
+import java.sql.*;
+
+public class MyTask extends TimerTask{
+    int count = 0;
+    int totalSeconds = 60;  
+    public StringSetTransfer myStringSetTransfer = null; 
+      
+    public void run(){
+       javax.sql.DataSource dataSource = null;
+       java.sql.Connection myConnection = null;          
+       PreparedStatement stmt = null; 
+       Statement s = null;
+       ResultSet rs = null;
+       count ++;
+       totalSeconds = 60 - count * 30;
+       if (totalSeconds >= 0){
+          try{
+             Class.forName("org.hsqldb.jdbcDriver");
+             myConnection = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");
+             s = myConnection.createStatement();
+             rs = s.executeQuery("select studentNo, playerId, remainSeconds from student_time");
+             String studentNo = null;
+             String playerId = null;
+             int remainSeconds = 0;
+             while(rs.next()){
+                studentNo = rs.getString(1);
+                playerId = rs.getString(2);
+                remainSeconds = rs.getInt(3);
+                remainSeconds -= 30;
+
+   stmt = myConnection.prepareStatement("update student_time set remainSeconds = ? where studentNo = '" + studentNo + "'");
+                stmt.clearParameters();
+                stmt.setInt(1, remainSeconds);
+                stmt.executeUpdate();
+             }
+   
+             System.out.println("inside MyTask, totalSeconds = " + totalSeconds);
+          }catch (Exception ex){
+             System.out.println("inside MyTask" + ex.getMessage());
+          }finally{
+             try{
+                if (rs != null) rs.close();
+                if (s != null) s.close();
+                if (stmt != null) stmt.close();
+                if (myConnection != null) myConnection.close(); 
+             }catch (Exception ex){
+                System.out.println(ex.getMessage());
+             }
+          }
+       }
+    }
+}
